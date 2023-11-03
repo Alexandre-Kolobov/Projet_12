@@ -28,3 +28,4 @@ class Client(Base):
     def lister_clients() -> List["Client"]:
         """Renvoi la liste des clients"""
         return(ClientQueries.lister_clients_dao(Client))
+

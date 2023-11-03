@@ -1,12 +1,14 @@
 from views.view_collaborateur import ViewCollaborateur
+from views.view_contrat import ViewContrat
 from models.collaborateur import Collaborateur
 from models.role import Role
 from models.client import Client
 from models.contrat import Contrat
 from models.evenement import Evenement
-from dao.base import ouvrir_session, add_session, commit_session, close_session, creer_database_tables
+from dao.base import creer_database_tables, valider_session
 from typing import Union
 from permissions.permissions_manager import Permissions
+import datetime
 
 
 class Controller:
@@ -35,10 +37,41 @@ class Controller:
 
         collaborateur.hacher_mot_de_passe()
 
-        session = ouvrir_session()
-        add_session(session, collaborateur)
-        commit_session(session)
-        close_session(session)
+        valider_session(collaborateur)
+
+
+    @staticmethod
+    def enregistrer_contrat() -> None:
+        """Permet de creer instance d'un contrat"""
+        montant_total = ViewContrat.entrer_montant_total()
+        reste_a_payer = ViewContrat.entrer_reste_a_payer()
+        date_creation = datetime.datetime.now()
+        statut_signe = ViewContrat.choisir_statut()
+
+        clients = Client.lister_clients()
+        clients_as_list_of_dict = [{client.id:f"{client.nom} {client.prenom} - {client.entreprise}"} for client in clients]
+        client_id = ViewContrat.choisir_client_id(clients_as_list_of_dict)
+
+        roles = Role.lister_roles_par_nom("commercial")
+        role = roles[0]
+        role_id = role.id
+
+        commercials = Collaborateur.selectionner_collaborateurs_par_role_id(role_id)
+        commercial_as_list_of_dict = [{commercial.id:f"{commercial.nom} {commercial.prenom}"} for commercial in commercials]
+        commercial_id = ViewContrat.choisir_client_id(commercial_as_list_of_dict)
+
+        collaborateur_id = commercial_id
+
+        contrat = Contrat(
+            montant_total=montant_total,
+            reste_a_payer=reste_a_payer,
+            date_creation=date_creation,
+            statut_signe=statut_signe,
+            client_id=client_id,
+            collaborateur_id=collaborateur_id
+            )
+
+        valider_session(contrat)
 
 
     @staticmethod
@@ -50,6 +83,7 @@ class Controller:
             return True
         else:
             return False
+
 
     @staticmethod
     def initialiser_roles() -> None:
@@ -80,6 +114,7 @@ class Controller:
             return None
 
 
+    @staticmethod
     def check_authorization_permission(token:str, role:str, permission_demandee:str) -> bool:
         """Permet controler validite de token et permissions"""
         if not Collaborateur.verifier_token:
@@ -93,7 +128,60 @@ class Controller:
         return True
 
 
-    
+    @staticmethod
+    def modifier_collaborateur(collaborateur:Collaborateur) -> None:
+        """Modifie les informations d'un collaborateur"""
+        
+        role_list = Role.lister_roles_par_id(collaborateur.role_id)
+        role = role_list[0]
+        role_name = role.role_name
+
+        attribut_dict = {
+            "nom":collaborateur.nom,
+            "prenom":collaborateur.prenom,
+            "email":collaborateur.email,
+            "telephone":collaborateur.telephone,
+            "mot_de_passe":"*****",
+            "role":role_name
+            }
+        
+        for key, value in attribut_dict.items():
+            if ViewCollaborateur.modifier_caracteristique(key,value):
+                if key == "nom":
+                    nom = ViewCollaborateur.entrer_nom_collaborateur()
+                    collaborateur.nom = nom
+                
+                if key == "prenom":
+                    prenom = ViewCollaborateur.entrer_prenom_collaborateur()
+                    collaborateur.prenom = prenom
+
+                if key == "email":
+                    email = ViewCollaborateur.entrer_email_collaborateur()
+                    collaborateur.email = email
+
+                if key == "telephone":
+                    telephone = ViewCollaborateur.entrer_telephone_collaborateur()
+                    collaborateur.telephone = telephone
+                    
+                if key == "mot_de_passe":
+                    mot_de_passe = ViewCollaborateur.entrer_mot_de_passe_collaborateur()
+                    collaborateur.mot_de_passe = mot_de_passe
+                    collaborateur.hacher_mot_de_passe()
+
+                if key == "role":
+                    roles = Role.lister_roles()
+                    roles_as_list_of_dict = [{role.id:role.role_name} for role in roles]
+                    role_id = ViewCollaborateur.choisir_role_collaborateur(roles_as_list_of_dict)
+                    collaborateur.role_id = role_id
+
+
+        valider_session(collaborateur)
+
+
+        
+
+
+ 
 
     @staticmethod
     def run() -> None:
@@ -108,9 +196,4 @@ class Controller:
         collaborateur_role = collaborateur_role_list[0].role_name
         token = collaborateur.generer_token()
 
-        if Controller.check_authorization_permission(token, collaborateur_role, "creer_collaborateur"):
-            Controller.enregistrer_collaborateur()
-
-
-
-    
+        Controller.enregistrer_contrat()

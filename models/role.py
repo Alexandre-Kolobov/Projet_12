@@ -33,3 +33,9 @@ class Role(Base):
     def lister_roles_par_id(role_id) -> List["Role"]:
         """Renvoi la liste de tous les roles en fonction de leur id"""
         return(RoleQueries.lister_roles_par_id_dao(Role, role_id))
+    
+
+    @staticmethod
+    def lister_roles_par_nom(role_name) -> List["Role"]:
+        """Renvoi la liste de tous les roles en fonction de leur nom"""
+        return(RoleQueries.lister_roles_par_name_dao(Role, role_name))

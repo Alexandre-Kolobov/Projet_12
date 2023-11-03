@@ -30,13 +30,14 @@ class CollaborateurQueries:
         return collaborateurs
     
     @staticmethod
-    def selectionner_collaborateurs_par_role_dao(model_class, role_id):
+    def selectionner_collaborateurs_par_role_id_dao(model_class, role_id):
         """Renvoi la liste des collaborateurs en fonction de leur role"""
         session = ouvrir_session()
         collaborateurs = session.query(model_class).filter(model_class.role_id == role_id).all()
         close_session(session)
         
         return collaborateurs
+
     
     @staticmethod
     def selectionner_collaborateurs_par_email_dao(model_class, email):
@@ -46,3 +47,4 @@ class CollaborateurQueries:
         close_session(session)
         
         return collaborateurs
+    

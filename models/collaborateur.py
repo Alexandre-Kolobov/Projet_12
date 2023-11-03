@@ -100,9 +100,9 @@ class Collaborateur(Base):
 
 
     @staticmethod
-    def selectionner_collaborateurs_par_role(role_id) -> List["Collaborateur"]:
-        """Renvoi la liste des collaborateurs en fonction de leur role"""
-        return(CollaborateurQueries.selectionner_collaborateurs_par_role_dao(Collaborateur, role_id))
+    def selectionner_collaborateurs_par_role_id(role_id) -> List["Collaborateur"]:
+        """Renvoi la liste des collaborateurs en fonction de leur role id"""
+        return(CollaborateurQueries.selectionner_collaborateurs_par_role_id_dao(Collaborateur, role_id))
 
 
     @staticmethod
@@ -110,3 +110,13 @@ class Collaborateur(Base):
         """Renvoi la liste des collaborateurs en fonction de leur email"""
         return(CollaborateurQueries.selectionner_collaborateurs_par_email_dao(Collaborateur, email))
     
+
+    
+    # def modifier_collaborateur(collaborateur: "Collaborateur") -> None:
+    #     """Modifier les informations d'un collaborateur"""
+    #     nom
+    #     prenom
+    #     email
+    #     telephone
+    #     mot_de_passe
+    #     role_id

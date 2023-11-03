@@ -26,3 +26,12 @@ class RoleQueries:
         close_session(session)
         
         return roles
+    
+    @staticmethod
+    def lister_roles_par_name_dao(model_class, role_name):
+        """Renvoi la liste de tous les roles en fonction de leur nom"""
+        session = ouvrir_session()
+        roles = session.query(model_class).filter(model_class.role_name == role_name).all()
+        close_session(session)
+
+        return roles

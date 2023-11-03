@@ -12,7 +12,7 @@ user = dbparam["user_admin"]
 password = dbparam["password_admin"]
 host = dbparam["host"]
 
-engine = create_engine(f'postgresql+psycopg2://{user}:{password}@{host}/epic_crm', echo=True)
+engine = create_engine(f'postgresql+psycopg2://{user}:{password}@{host}/epic_crm', echo=False)
 
 Session = sessionmaker(bind=engine)
 
@@ -49,3 +49,11 @@ def commit_session(session):
 def close_session(session):
     """Permet fermer une sessions"""
     session.close()
+
+
+def valider_session(obj):
+    """Regroupe actions d'ouverture, add, commit et close"""
+    session = ouvrir_session()
+    add_session(session, obj)
+    commit_session(session)
+    close_session(session)

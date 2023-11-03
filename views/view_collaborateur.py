@@ -106,3 +106,16 @@ class ViewCollaborateur():
     @staticmethod
     def refuser_permissions() -> str:
         print("Vous n'avez pas de permission pour réaliser cette action")
+
+    
+    @staticmethod
+    def modifier_caracteristique(key:str, value:[str,int]) -> bool:
+        while True:
+            reponse = input(f"Voulez vous modifier {key}:{value}? [y/n]")
+            if reponse.lower() == "y":
+                return True
+            
+            if reponse.lower() == "n":
+                return False
+            
+            print("Merci d'utiliser y or n")
