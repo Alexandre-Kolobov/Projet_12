@@ -2,6 +2,8 @@ from sqlalchemy import ForeignKey, DateTime, String, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from dao.base import Base
 from datetime import datetime
+from dao.evenement_queries import EvenementQueries
+from typing import List
 
 
 class Evenement(Base):
@@ -22,3 +24,8 @@ class Evenement(Base):
 
     contrat = relationship("Contrat", uselist=False, back_populates="evenement")
     collaborateur = relationship("Collaborateur", back_populates="evenements")
+
+    @staticmethod
+    def lister_evenements() -> List["Evenement"]:
+        """Renvoi la liste des evenements"""
+        return(EvenementQueries.lister_evenements_dao(Evenement))

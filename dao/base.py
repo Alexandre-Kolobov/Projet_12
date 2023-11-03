@@ -5,7 +5,7 @@ import configparser
 
 # Recuperation de login et mdp dans un fichier .ini
 config_obj = configparser.ConfigParser()
-config_obj.read("dao/config.ini")
+config_obj.read("config.ini")
 dbparam = config_obj["postgresql"]
 
 user = dbparam["user_admin"]

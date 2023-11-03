@@ -3,6 +3,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from dao.base import Base
 from datetime import datetime
 from typing import Optional
+from typing import List
+from dao.client_queries import ClientQueries
 
 
 class Client(Base):
@@ -20,3 +22,9 @@ class Client(Base):
 
     collaborateur = relationship("Collaborateur", back_populates="clients")
     contrats = relationship("Contrat", back_populates="client", cascade="all, delete, delete-orphan")
+
+
+    @staticmethod
+    def lister_clients() -> List["Client"]:
+        """Renvoi la liste des clients"""
+        return(ClientQueries.lister_clients_dao(Client))

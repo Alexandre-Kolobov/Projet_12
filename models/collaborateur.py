@@ -3,7 +3,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from dao.base import Base
 from dao.collaborateur_queries import CollaborateurQueries
 import bcrypt
-from typing import List
+from typing import List, Union
+import configparser
+import jwt
+from jwt.exceptions import InvalidSignatureError
 
 
 class Collaborateur(Base):
@@ -36,6 +39,47 @@ class Collaborateur(Base):
     def verifier_mot_de_passe(self, mot_de_passe: str) -> bool:
         """Controle de hache de mot de passe"""
         return bcrypt.checkpw(mot_de_passe.encode('utf-8'), self.mot_de_passe.encode('utf-8'))
+    
+
+    def generer_token(self) -> str:
+        """Genere JWT"""
+        config_obj = configparser.ConfigParser()
+        config_obj.read("config.ini")
+        jwt_param = config_obj["jwt"]
+
+        secret = jwt_param["secret"]
+
+        payload_data = {
+            "id": self.id,
+            "nom": self.nom,
+            "prenom": self.prenom,
+            "role_id": self.role_id,
+        }
+
+        token = jwt.encode(
+            payload=payload_data,
+            key=secret
+        )
+
+        return token
+
+
+    @staticmethod
+    def verifier_token(token:str) -> bool:
+        """Decode token et retourn son payload"""
+        config_obj = configparser.ConfigParser()
+        config_obj.read("config.ini")
+        jwt_param = config_obj["jwt"]
+
+        secret = jwt_param["secret"]
+        header_data = jwt.get_unverified_header(token)
+
+        try:
+            payload_data = jwt.decode(jwt=token, key=secret, algorithms=header_data["alg"])
+            return True
+        
+        except InvalidSignatureError:
+            return False
 
     @staticmethod
     def lister_collaborateurs() -> List["Collaborateur"]:
@@ -65,3 +109,4 @@ class Collaborateur(Base):
     def selectionner_collaborateurs_par_email(email) -> List["Collaborateur"]:
         """Renvoi la liste des collaborateurs en fonction de leur email"""
         return(CollaborateurQueries.selectionner_collaborateurs_par_email_dao(Collaborateur, email))
+    

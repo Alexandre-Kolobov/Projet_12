@@ -96,3 +96,13 @@ class ViewCollaborateur():
     @staticmethod
     def refuser_authentification() -> str:
         print("Les informations d'identification ne sont pas correctes")
+
+
+    @staticmethod
+    def refuser_token() -> str:
+        print("Le token n'est pas correcte")
+
+
+    @staticmethod
+    def refuser_permissions() -> str:
+        print("Vous n'avez pas de permission pour réaliser cette action")

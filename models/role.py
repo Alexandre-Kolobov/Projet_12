@@ -21,3 +21,15 @@ class Role(Base):
     def lister_roles() -> List["Role"]:
         """Renvoi la liste de tous les roles"""
         return(RoleQueries.lister_roles_dao(Role))
+    
+    @staticmethod
+    def initialiser_roles(roles: list) -> None:
+        """Ajout des roles dans la base des donnees"""
+        for r in roles:
+            role = Role(role_name=r)
+            RoleQueries.ajouter_role_dao(role)
+
+    @staticmethod
+    def lister_roles_par_id(role_id) -> List["Role"]:
+        """Renvoi la liste de tous les roles en fonction de leur id"""
+        return(RoleQueries.lister_roles_par_id_dao(Role, role_id))

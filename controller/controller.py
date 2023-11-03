@@ -1,8 +1,12 @@
 from views.view_collaborateur import ViewCollaborateur
 from models.collaborateur import Collaborateur
 from models.role import Role
-from typing import List
-from dao.base import creer_database_tables, ouvrir_session, add_session, commit_session, close_session
+from models.client import Client
+from models.contrat import Contrat
+from models.evenement import Evenement
+from dao.base import ouvrir_session, add_session, commit_session, close_session, creer_database_tables
+from typing import Union
+from permissions.permissions_manager import Permissions
 
 
 class Controller:
@@ -48,22 +52,14 @@ class Controller:
             return False
 
     @staticmethod
-    def ajouter_roles() -> None:
+    def initialiser_roles() -> None:
         """Ajout des roles par defaut dans la base des donnees"""
-        roles = ["gestion", "commercial", "support"]
-
-        session = ouvrir_session()
-        for r in roles:
-            role = Role(role_name=r)
-        
-            add_session(session, role)
-
-        commit_session(session)
-        close_session(session)
+        roles = [role.value for role in Controller.RolesEnum]
+        Role.initialiser_roles(roles)
 
 
     @staticmethod
-    def authentication_user() -> bool:
+    def authentication_user() -> Union[Collaborateur, None]:
         """Verification si l'utilisateur existe dans la base des donnees
         et que son mot de passe est correcte"""
         email = ViewCollaborateur.entrer_email_collaborateur()
@@ -78,8 +74,43 @@ class Controller:
         collaborateur = collaborateurs[0]
 
         if collaborateur.verifier_mot_de_passe(mot_de_pass):
-            return True
+            return collaborateur
         else:
             ViewCollaborateur.refuser_authentification() 
+            return None
+
+
+    def check_authorization_permission(token:str, role:str, permission_demandee:str) -> bool:
+        """Permet controler validite de token et permissions"""
+        if not Collaborateur.verifier_token:
+            ViewCollaborateur.refuser_token()
             return False
 
+        if not Permissions.verification_persmissions_de_collaborateur(role, permission_demandee):
+            ViewCollaborateur.refuser_permissions()
+            return False
+        
+        return True
+
+
+    
+
+    @staticmethod
+    def run() -> None:
+        """Fonction qui lance l'application"""
+
+        creer_database_tables()
+        if not Controller.roles_existe_dans_db():
+            Controller.initialiser_roles()
+
+        collaborateur = Controller.authentication_user()
+        collaborateur_role_list = Role.lister_roles_par_id(collaborateur.role_id)
+        collaborateur_role = collaborateur_role_list[0].role_name
+        token = collaborateur.generer_token()
+
+        if Controller.check_authorization_permission(token, collaborateur_role, "creer_collaborateur"):
+            Controller.enregistrer_collaborateur()
+
+
+
+    

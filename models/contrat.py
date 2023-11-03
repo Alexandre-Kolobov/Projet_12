@@ -2,6 +2,8 @@ from sqlalchemy import ForeignKey, DateTime, Float, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from dao.base import Base
 from datetime import datetime
+from dao.contrat_queries import ContratQueries
+from typing import List
 
 
 class Contrat(Base):
@@ -18,3 +20,8 @@ class Contrat(Base):
     client = relationship("Client", back_populates="contrats")
     evenement = relationship("Evenement", uselist=False, back_populates="contrat", cascade="all, delete, delete-orphan")
     collaborateur = relationship("Collaborateur", back_populates="contrats")
+
+    @staticmethod
+    def lister_contrats() -> List["Contrat"]:
+        """Renvoi la liste de tous les contrats"""
+        return(ContratQueries.lister_contrats_dao(Contrat))
