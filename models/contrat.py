@@ -25,3 +25,9 @@ class Contrat(Base):
     def lister_contrats() -> List["Contrat"]:
         """Renvoi la liste de tous les contrats"""
         return(ContratQueries.lister_contrats_dao(Contrat))
+    
+
+    @staticmethod
+    def lister_contrats_par_id(contrat_id) -> List["Contrat"]:
+        """Renvoi la liste de tous les contrats en fonction de leur id"""
+        return(ContratQueries.lister_contrats_par_id_dao(Contrat, contrat_id))

@@ -111,12 +111,8 @@ class Collaborateur(Base):
         return(CollaborateurQueries.selectionner_collaborateurs_par_email_dao(Collaborateur, email))
     
 
-    
-    # def modifier_collaborateur(collaborateur: "Collaborateur") -> None:
-    #     """Modifier les informations d'un collaborateur"""
-    #     nom
-    #     prenom
-    #     email
-    #     telephone
-    #     mot_de_passe
-    #     role_id
+    @staticmethod
+    def collaborateurs_as_list_of_dict(collaborateurs:list["Collaborateur"]) -> List[dict]:
+        """Renvoi les infos des collaborateurs sous form de list des dictionnaires"""
+        collaborateur_as_list_of_dict = [{collaborateur.id:f"{collaborateur.nom} {collaborateur.prenom}"} for collaborateur in collaborateurs]
+        return (collaborateur_as_list_of_dict)

@@ -10,3 +10,13 @@ class ContratQueries:
         close_session(session)
         
         return contrats
+    
+
+    @staticmethod
+    def lister_contrats_par_id_dao(model_class, contrat_id):
+        """Renvoi la liste de tous les contrats par id"""
+        session = ouvrir_session()
+        roles = session.query(model_class).filter(model_class.id == contrat_id).all()
+        close_session(session)
+        
+        return roles

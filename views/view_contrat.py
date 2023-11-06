@@ -84,3 +84,15 @@ class ViewContrat():
                 print("Erreur: " + str(exc))
 
         return choix_collaborateur
+    
+    @staticmethod
+    def modifier_caracteristique(key:str, value:[str,int]) -> bool:
+        while True:
+            reponse = input(f"Voulez vous modifier {key}:{value}? [y/n]")
+            if reponse.lower() == "y":
+                return True
+            
+            if reponse.lower() == "n":
+                return False
+            
+            print("Merci d'utiliser y or n")

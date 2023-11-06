@@ -29,3 +29,9 @@ class Client(Base):
         """Renvoi la liste des clients"""
         return(ClientQueries.lister_clients_dao(Client))
 
+    
+    @staticmethod
+    def clients_as_list_of_dict(clients:list["Client"]) -> List[dict]:
+        """Renvoi les info des clients sous form de list des dictionnaires"""
+        clients_as_list_of_dict = [{client.id:f"{client.nom} {client.prenom} - {client.entreprise}"} for client in clients]
+        return (clients_as_list_of_dict)
