@@ -95,22 +95,27 @@ class ViewCollaborateur():
 
     @staticmethod
     def refuser_authentification() -> str:
+        print("----------------------------------------")
         print("Les informations d'identification ne sont pas correctes")
+        print("Merci de reesayer")
 
 
     @staticmethod
     def refuser_token() -> str:
+        print("----------------------------------------")
         print("Le token n'est pas correcte")
 
 
     @staticmethod
     def refuser_permissions() -> str:
+        print("----------------------------------------")
         print("Vous n'avez pas de permission pour réaliser cette action")
 
     
     @staticmethod
     def modifier_caracteristique(key:str, value:[str,int]) -> bool:
         while True:
+            print("----------------------------------------")
             reponse = input(f"Voulez vous modifier {key}:{value}? [y/n]")
             if reponse.lower() == "y":
                 return True
@@ -119,3 +124,8 @@ class ViewCollaborateur():
                 return False
             
             print("Merci d'utiliser y or n")
+
+    @staticmethod
+    def initialisation_collaborateur() -> None:
+        print("----------------------------------------")
+        print("Pour le premiere lancement de l'application nous devons créer un utilisateur gestionnaire.")

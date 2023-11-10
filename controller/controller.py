@@ -2,31 +2,38 @@ from views.view_collaborateur import ViewCollaborateur
 from views.view_contrat import ViewContrat
 from views.view_client import ViewClient
 from views.view_evenement import ViewEvenement
+from views.view_menu import ViewMenu
 from models.collaborateur import Collaborateur
 from models.role import Role
 from models.client import Client
 from models.contrat import Contrat
 from models.evenement import Evenement
-from dao.base import creer_database_tables, valider_session
+from dao.base import creer_database_tables, valider_session, supprimer_database_tables
 from typing import Union
 from permissions.permissions_manager import Permissions
 import datetime
 
 
+
 class Controller:
 
     @staticmethod
-    def enregistrer_collaborateur() -> None:
+    def enregistrer_collaborateur(first_user_exists:bool) -> None:
         """Permet de creer instance d'un collaborateur"""
         prenom = ViewCollaborateur.entrer_prenom_collaborateur()
         nom = ViewCollaborateur.entrer_nom_collaborateur()
         email = ViewCollaborateur.entrer_email_collaborateur()
         telephone = ViewCollaborateur.entrer_telephone_collaborateur()
         mot_de_passe = ViewCollaborateur.entrer_mot_de_passe_collaborateur()
-
         roles = Role.lister_roles()
         roles_as_list_of_dict = [{role.id:role.role_name} for role in roles]
-        role_id = ViewCollaborateur.choisir_role_collaborateur(roles_as_list_of_dict)
+
+        if first_user_exists:
+            role_id = ViewCollaborateur.choisir_role_collaborateur(roles_as_list_of_dict)
+        else:
+            roles = Role.lister_roles_par_nom("gestion")
+            role_id = roles[0].id
+
 
         collaborateur = Collaborateur(
             nom=nom,
@@ -37,10 +44,11 @@ class Controller:
             role_id=role_id
             )
 
+        
+
         collaborateur.hacher_mot_de_passe()
 
         valider_session(collaborateur)
-
 
     @staticmethod
     def enregistrer_contrat() -> None:
@@ -149,7 +157,7 @@ class Controller:
 
 
     @staticmethod
-    def roles_existe_dans_db() -> bool:
+    def roles_existent_dans_db() -> bool:
         """Verification de l'existance des roles dans la base des donnees"""
         roles = []
         roles = Role.lister_roles()
@@ -162,8 +170,19 @@ class Controller:
     @staticmethod
     def initialiser_roles() -> None:
         """Ajout des roles par defaut dans la base des donnees"""
-        roles = [role.value for role in Controller.RolesEnum]
+        roles = [role.value for role in Permissions.RolesEnum]
         Role.initialiser_roles(roles)
+
+
+    @staticmethod
+    def collaborateurs_existent_dans_db() -> bool:
+        """Verification de l'existance des collaborateurs dans la base des donnees"""
+        collaborateurs = []
+        collaborateurs = Collaborateur.lister_collaborateurs()
+        if collaborateurs:
+            return True
+        else:
+            return False
 
 
     @staticmethod
@@ -177,7 +196,7 @@ class Controller:
 
         if not collaborateurs:
             ViewCollaborateur.refuser_authentification()
-            return False
+            return None
         
         collaborateur = collaborateurs[0]
 
@@ -439,17 +458,42 @@ class Controller:
     @staticmethod
     def run() -> None:
         """Fonction qui lance l'application"""
-
+        # supprimer_database_tables()
+        # on initalise la base des donnees pour le premiere lancement de l'application
         creer_database_tables()
-        if not Controller.roles_existe_dans_db():
+
+        # on initalise les roles pour le premiere lancement de l'application
+        if not Controller.roles_existent_dans_db():
             Controller.initialiser_roles()
 
-        collaborateur = Controller.authentication_user()
+        # on initalise un utilisateur gestionnaire pour le premiere lancement de l'application
+        collaborateur_existe_dans_db = Controller.collaborateurs_existent_dans_db()
+        collaborateur = None
+        if not collaborateur_existe_dans_db:
+            ViewCollaborateur.initialisation_collaborateur()
+            Controller.enregistrer_collaborateur(collaborateur_existe_dans_db)
+            while collaborateur == None:
+                collaborateur = Controller.authentication_user()
+        else:
+            while collaborateur == None:
+                collaborateur = Controller.authentication_user()
+
+
+
         collaborateur_role_list = Role.lister_roles_par_id(collaborateur.role_id)
         collaborateur_role = collaborateur_role_list[0].role_name
+
         token = collaborateur.generer_token()
 
-        # Controller.enregistrer_contrat()
-        # contrats = Contrat.lister_contrats()
-        # Controller.modifier_contrat(contrats[1])
-        Controller.enregistrer_client()
+
+        choix = ViewMenu.afficher_menu_principal()
+        if choix == "Consulter":
+            list_collaborateur = Collaborateur.lister_collaborateurs()
+            ViewMenu.afficher_collaborateurs(list_collaborateur)
+
+            
+
+        # # Controller.enregistrer_contrat()
+        # # contrats = Contrat.lister_contrats()
+        # # Controller.modifier_contrat(contrats[1])
+        # Controller.enregistrer_client()

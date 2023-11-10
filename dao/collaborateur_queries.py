@@ -10,6 +10,7 @@ class CollaborateurQueries:
         close_session(session)
         
         return collaborateurs
+
     
     @staticmethod
     def selectionner_collaborateurs_par_nom_prenom_dao(model_class, nom, prenom):

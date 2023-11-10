@@ -8,11 +8,12 @@ config_obj = configparser.ConfigParser()
 config_obj.read("config.ini")
 dbparam = config_obj["postgresql"]
 
-user = dbparam["user_admin"]
-password = dbparam["password_admin"]
+user = dbparam["user_epic"]
+password = dbparam["password_epic"]
 host = dbparam["host"]
+db_name = dbparam["db_name"]
 
-engine = create_engine(f'postgresql+psycopg2://{user}:{password}@{host}/epic_crm', echo=False)
+engine = create_engine(f'postgresql+psycopg2://{user}:{password}@{host}/{db_name}', echo=False)
 
 Session = sessionmaker(bind=engine)
 
