@@ -9,6 +9,7 @@ def mocks(mocker, db_session, pass_function):
     
     return mock_ouvrir_session, mock_close_session
 
+
 def test_should_return_all_collaborateurs(db_session, mocks):
 
     mock_ouvrir_session, mock_close_session = mocks

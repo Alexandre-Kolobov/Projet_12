@@ -37,3 +37,14 @@ def test_should_add_role(db_session, mocks):
     assert sut == role_from_db
 
 
+def test_should_return_all_roles_with_same_role_name(db_session, mocks, role_gestionnaire):
+    """Verification qu'on recuper la liste des roles par nom correctemment"""
+    mock_ouvrir_session, mock_close_session = mocks
+    role_name = role_gestionnaire.role_name
+    sut = RoleQueries.lister_roles_par_name_dao(Role, role_name)
+    roles = db_session.query(Role).filter(Role.role_name==role_name).all()
+
+    assert mock_ouvrir_session.call_count == 1
+    assert mock_close_session.call_count == 1
+    assert sut == roles
+

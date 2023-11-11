@@ -466,7 +466,7 @@ class Controller:
         if not Controller.roles_existent_dans_db():
             Controller.initialiser_roles()
 
-        # on initalise un utilisateur gestionnaire pour le premiere lancement de l'application
+        # on initialise un utilisateur gestionnaire pour le premiere lancement de l'application
         collaborateur_existe_dans_db = Controller.collaborateurs_existent_dans_db()
         collaborateur = None
         if not collaborateur_existe_dans_db:

@@ -35,3 +35,17 @@ def test_should_add_roles_to_db(mocker):
         #  [0] - 1ere argumpent dans cortege
 
         assert mock.call_args_list[i][0][0].role_name == roles[i]
+
+def test_should_return_list_of_roles_by_role_name(mocker, role_gestionnaire, role_commercial, role_support):
+    """Verifier que la fonction Role.lister_roles_par_nom()
+    passe les arguments correctemments à la fonction RoleQueries.lister_roles_par_name_dao"""
+    roles = [role_gestionnaire, role_commercial, role_support]
+
+    def lister_roles_par_name_dao(roles):
+        return [roles[0]]
+    
+    mock = mocker.patch('models.role.RoleQueries.lister_roles_par_name_dao', return_value=lister_roles_par_name_dao(roles))
+    role_name = role_gestionnaire.role_name
+    sut = Role.lister_roles_par_nom(role_name)
+    assert mock.call_count == 1  # Pour confirmer appel au mock
+    assert len(sut) == 1
