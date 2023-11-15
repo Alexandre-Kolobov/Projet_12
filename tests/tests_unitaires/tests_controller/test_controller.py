@@ -331,7 +331,58 @@ def test_should_update_collaborateur_instance(mocker, collaborateur_commercial, 
 
 
 def test_should_remove_collaborateur_from_db(mocker, collaborateur_commercial):
-    """Verifie que la fonction Controller.supprimer_collaborateur supprime un collaborateur"""
+    """Verifie que la fonction Controller.supprimer_obj supprime un collaborateur"""
     mock_valider_session = mocker.patch("controller.controller.valider_sessions_supprimer_objet")
-    Controller.supprimer_collaborateur(collaborateur_commercial)
+    Controller.supprimer_obj(collaborateur_commercial)
     assert mock_valider_session.call_count == 1
+
+
+def test_should_create_client_instance(mocker):
+        """Verifie que la fonction Controller.enregistrer_collaborateur enregistre premiere collaborateur comme gestionnaire"""
+
+        mock_prenom = mocker.patch(
+            'controller.controller.ViewClient.entrer_nom_client',
+            return_value="Jobs"
+            )
+        
+        mock_nom = mocker.patch(
+            'controller.controller.ViewClient.entrer_prenom_client',
+            return_value="Steve"
+            )
+        
+        mock_email = mocker.patch(
+            'controller.controller.ViewClient.entrer_email_client',
+            return_value="sj@gmail.com"
+            )
+        
+        mock_telephone = mocker.patch(
+            'controller.controller.ViewClient.entrer_telephone_client',
+            return_value=555
+            )
+        
+        mock_entreprise = mocker.patch(
+            'controller.controller.ViewClient.entrer_entreprise_client',
+            return_value="Apple"
+            )
+
+        mock_valider_session = mocker.patch("controller.controller.valider_session")
+        
+        Controller.enregistrer_client(3)
+        assert mock_valider_session.call_count == 1
+        assert mock_valider_session.call_args.args[0].prenom == "Steve"
+        assert mock_valider_session.call_args.args[0].nom == "Jobs"
+        assert mock_valider_session.call_args.args[0].email == "sj@gmail.com"
+        assert mock_valider_session.call_args.args[0].telephone == 555
+        assert mock_valider_session.call_args.args[0].entreprise == "Apple"
+        assert mock_valider_session.call_args.args[0].collaborateur_id == 3
+
+def test_should_return_true_if_ids_are_the_same():
+    """Verification de l'égalité des id pour fonction Controller.check_exclusive_permission"""
+    sut = Controller.check_exclusive_permission(1,1)
+    assert sut == True 
+
+
+def test_should_return_false_if_ids_are_not_the_same():
+    """Verification de l'égalité des id pour fonction Controller.check_exclusive_permission"""
+    sut = Controller.check_exclusive_permission(2,1)
+    assert sut == False 

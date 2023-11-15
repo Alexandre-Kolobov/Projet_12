@@ -35,3 +35,15 @@ class Client(Base):
         """Renvoi les info des clients sous form de list des dictionnaires"""
         clients_as_list_of_dict = [{client.id:f"{client.nom} {client.prenom} - {client.entreprise}"} for client in clients]
         return (clients_as_list_of_dict)
+    
+
+    @staticmethod
+    def lister_clients_join_collaborateur() -> List["Client"]:
+        """Renvoi la liste de tous les client avec leur collaborateur associé"""
+        return(ClientQueries.lister_clients_join_collaborateur_dao(Client))
+    
+
+    @staticmethod
+    def selectionner_client_par_id(id) -> List["Client"]:
+        """Renvoi la liste des client en fonction de leur id"""
+        return(ClientQueries.selectionner_client_par_id_dao(Client, id))

@@ -23,7 +23,7 @@ def test_should_ask_again_about_user_choice_if_choice_is_wrong_menu_principal(mo
 def test_should_return_user_choice_menu_collaborateur(mocker):
     """Fonctionnement avec un choix valide ViewMenu.afficher_menu_collaborateurs"""
     mocker.patch('builtins.input', return_value = "1")
-    sut = ViewMenu.afficher_menu_collaborateurs()
+    sut = ViewMenu.afficher_menu_model("test")
 
 
     assert sut == "AFFICHER"
@@ -32,7 +32,7 @@ def test_should_return_user_choice_menu_collaborateur(mocker):
 def test_should_ask_again_about_user_choice_if_choice_is_wrong_menu_collaborateur(mocker, capsys):
     """Fonctionnement avec un choix non valide ViewMenu.afficher_menu_collaborateurs"""
     mocker.patch('builtins.input', side_effect=["99", "1"])
-    sut = ViewMenu.afficher_menu_collaborateurs()
+    sut = ViewMenu.afficher_menu_model("test")
 
     captured = capsys.readouterr()
     sut = captured.out

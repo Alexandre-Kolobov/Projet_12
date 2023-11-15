@@ -19,7 +19,6 @@ class ViewMenu():
     
     @staticmethod
     def afficher_menu_principal() -> str:
-        ViewMenu.clear()
         while True:
             
             print("----------------------------------------")
@@ -45,18 +44,18 @@ class ViewMenu():
 
 
     @staticmethod
-    def afficher_menu_collaborateurs() -> str:
+    def afficher_menu_model(model:str) -> str:
         # ViewMenu.clear()
         while True:
             
             print("----------------------------------------")
-            print("1 - Afficher collaborateurs")
-            print("2 - Ajouter collaborateur")
-            print("3 - Modifier collaborateur")
-            print("4 - Supprimer collaborateur")
-            print("5 - Revenir dans le menu principal")
-            print("6 - Quitter")
-            print("----------------------------------------")
+            print(f"1 - Afficher {model}s")
+            print(f"2 - Ajouter {model}")
+            print(f"3 - Modifier {model}")
+            print(f"4 - Supprimer {model}")
+            print(f"5 - Revenir dans le menu principal")
+            print(f"6 - Quitter")
+            print(f"----------------------------------------")
 
             choix = ViewMenu.choix_crud
             values = [enum.value for enum in choix]
@@ -76,3 +75,4 @@ class ViewMenu():
     def revenir_a_ecran_precedent():
         reponse = Confirm.ask("Voulez vous revenir dans le menu des collaborateurs?")
         return reponse
+    

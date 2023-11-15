@@ -1,4 +1,19 @@
+from rich.console import Console
+from rich.table import Table
+from rich.prompt import Confirm
+from os import system, name
+
+
 class ViewClient():
+    @staticmethod
+    def clear():
+        # for windows
+        if name == 'nt':
+            _ = system('cls')
+    
+        # for mac and linux(here, os.name is 'posix')
+        else:
+            _ = system('clear')
 
     @staticmethod
     def entrer_prenom_client() -> str:
@@ -109,3 +124,70 @@ class ViewClient():
                 return False
             
             print("Merci d'utiliser y or n")
+
+
+    @staticmethod
+    def afficher_clients(list_clients: list):
+        ViewClient.clear()
+        table = Table(title="List des clients")
+
+        table.add_column("id", style="cyan", no_wrap=True)
+        table.add_column("Nom Prenom", style="magenta")
+        table.add_column("Email", style="magenta")
+        table.add_column("Telephone", style="magenta")
+        table.add_column("Entreprise", style="magenta")
+        table.add_column("Date de création", style="magenta")
+        table.add_column("Date de mise à jour", style="magenta")
+        table.add_column("Commercial id", justify="right", style="green")
+        table.add_column("Commerciale Nom Prenom", justify="right", style="green")
+
+        for client in list_clients:
+            table.add_row(
+                str(client.id),
+                f"{client.prenom} {client.nom}",
+                str(client.email),
+                str(client.telephone),
+                str(client.entreprise),
+                str(client.date_creation),
+                str(client.date_update),
+                str(client.collaborateur_id),
+                f"{client.collaborateur.prenom} {client.collaborateur.nom}"
+                )
+
+
+        console = Console()
+        console.print(table)
+
+    @staticmethod
+    def redemander_ajouter_client() -> None:
+        print("----------------------------------------")
+        reponse = Confirm.ask("Voulez-vous ajouter un autre client?")
+        return reponse
+    
+    @staticmethod
+    def demander_id_du_client_a_modifier() -> str:
+        print("----------------------------------------")
+        id_client = input("Indiquer l'id du client à modifier:")
+        return id_client
+    
+    @staticmethod
+    def demander_de_modifier_un_autre_client() -> None:
+        print("----------------------------------------")
+        reponse = Confirm.ask("Voulez-vous modifier un autre client?")
+        return reponse
+    
+    @staticmethod
+    def demander_id_du_client_a_supprimer() -> str:
+        print("----------------------------------------")
+        id_client = input("Indiquer l'id du client à supprimer:")
+        return id_client
+    
+
+    @staticmethod
+    def demander_de_confirmer_suppression_client(client) -> None:
+        print("----------------------------------------")
+        reponse = Confirm.ask(
+            "Confirmer la suppression du collaborateur - "
+            f"id{client.id} {client.nom} {client.prenom} {client.entreprise}"
+            )
+        return reponse

@@ -89,24 +89,16 @@ class Controller:
 
 
     @staticmethod
-    def enregistrer_client() -> None:
+    def enregistrer_client(collaborateur_id:int) -> None:
         """Permet de creer instance d'un client"""
-        nom = ViewClient.entrer_nom_client()
         prenom = ViewClient.entrer_prenom_client()
+        nom = ViewClient.entrer_nom_client()
         email = ViewClient.entrer_email_client()
         telephone = ViewClient.entrer_telephone_client()
         entreprise = ViewClient.entrer_entreprise_client()
         date_creation = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
-        roles = Role.lister_roles_par_nom("commercial")
-        role = roles[0]
-        role_id = role.id
-
-        commercials = Collaborateur.selectionner_collaborateurs_par_role_id(role_id)
-        commercial_as_list_of_dict = Collaborateur.collaborateurs_as_list_of_dict(commercials)
-        commercial_id = ViewClient.choisir_collaborateur_id(commercial_as_list_of_dict)
-        collaborateur_id = commercial_id
-
+        collaborateur_id = collaborateur_id
 
         client = Client(
             nom=nom,
@@ -231,6 +223,16 @@ class Controller:
 
 
     @staticmethod
+    def check_exclusive_permission(id_fkey:int, id:int) -> bool:
+        if not id_fkey == id:
+            ViewMenu.clear()
+            ViewCollaborateur.refuser_permissions()
+            return False
+        
+        return True
+    
+
+    @staticmethod
     def modifier_collaborateur(collaborateur:Collaborateur) -> None:
         """Modifie les informations d'un collaborateur"""
         
@@ -337,8 +339,7 @@ class Controller:
             "prenom":client.prenom,
             "email":client.email,
             "telephone":client.telephone,
-            "entreprise":client.entreprise,
-            "collaborateur_id":client.collaborateur_id
+            "entreprise":client.entreprise
             }
         
         for key, value in attribut_dict.items():
@@ -368,19 +369,19 @@ class Controller:
                     client.entreprise = entreprise
                     client.date_update = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
-                if key == "collaborateur_id":
-                    # Choisir parmis les commerciaux
-                    roles = Role.lister_roles_par_nom("commercial")
-                    role = roles[0]
-                    role_id = role.id
+                # if key == "collaborateur_id":
+                #     # Choisir parmis les commerciaux
+                #     roles = Role.lister_roles_par_nom("commercial")
+                #     role = roles[0]
+                #     role_id = role.id
 
-                    commercials = Collaborateur.selectionner_collaborateurs_par_role_id(role_id)
-                    commercial_as_list_of_dict = Collaborateur.collaborateurs_as_list_of_dict(commercials)
-                    commercial_id = ViewClient.choisir_collaborateur_id(commercial_as_list_of_dict)
-                    collaborateur_id = commercial_id
+                #     commercials = Collaborateur.selectionner_collaborateurs_par_role_id(role_id)
+                #     commercial_as_list_of_dict = Collaborateur.collaborateurs_as_list_of_dict(commercials)
+                #     commercial_id = ViewClient.choisir_collaborateur_id(commercial_as_list_of_dict)
+                #     collaborateur_id = commercial_id
 
-                    client.collaborateur_id = collaborateur_id
-                    client.date_update = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                #     client.collaborateur_id = collaborateur_id
+                #     client.date_update = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
         valider_session(client)
 
@@ -465,9 +466,9 @@ class Controller:
 
 
     @staticmethod
-    def supprimer_collaborateur(collaborateur:Collaborateur) -> None:
-        """Supprime un collaborateur"""
-        valider_sessions_supprimer_objet(collaborateur)
+    def supprimer_obj(obj:Union[Collaborateur, Client, Contrat, Evenement]) -> None:
+        """Supprime un objet"""
+        valider_sessions_supprimer_objet(obj)
 
 
     @staticmethod
@@ -500,36 +501,43 @@ class Controller:
 
         collaborateur_role_list = Role.lister_roles_par_id(collaborateur.role_id)
         collaborateur_role = collaborateur_role_list[0].role_name
+        collaborateur_id = collaborateur.id
 
         token = collaborateur.generer_token()
 
         while True:
+            ViewMenu.clear()
             choix_menu_principal = ViewMenu.afficher_menu_principal()
             
             if choix_menu_principal == "COLLABORATEURS":
+                ViewMenu.clear()
                 while True:
-                    ViewMenu.clear()
-                    choix_menu_collaborateurs = ViewMenu.afficher_menu_collaborateurs()
+                    choix_menu_collaborateurs = ViewMenu.afficher_menu_model("collaborateur")
                     
                     if choix_menu_collaborateurs == "AFFICHER":
+                        ViewMenu.clear()
                         if Controller.check_authorization_permission(token, collaborateur_role, "lecture_collaborateurs"):
                             while True:
                                 collaborateurs = Collaborateur.lister_collaborateurs_join_roles()
                                 ViewCollaborateur.afficher_collaborateurs(collaborateurs)
                                 if ViewMenu.revenir_a_ecran_precedent() is True:
+                                    ViewMenu.clear()
                                     break
 
 
                     if choix_menu_collaborateurs == "AJOUTER":
+                        ViewMenu.clear()
                         if Controller.check_authorization_permission(token, collaborateur_role, "creer_collaborateur"):
                             while True:
                                 collaborateur_existe_dans_db = Controller.collaborateurs_existent_dans_db()
                                 Controller.enregistrer_collaborateur(collaborateur_existe_dans_db)
                                 if ViewCollaborateur.redemander_ajouter_collaborateur() is False:
+                                    ViewMenu.clear()
                                     break
 
 
                     if choix_menu_collaborateurs == "MODIFIER":
+                        ViewMenu.clear()
                         if Controller.check_authorization_permission(token, collaborateur_role, "modifier_collaborateur"):
                             while True:
                                 id = ViewCollaborateur.demander_id_du_collaborateur_a_modifier()
@@ -537,30 +545,104 @@ class Controller:
                                 collaborateur = collaborateurs[0]
                                 Controller.modifier_collaborateur(collaborateur)
                                 if ViewCollaborateur.demander_de_modifier_un_autre_collaborateur() is False:
+                                    ViewMenu.clear()
                                     break
+                                    
 
 
                     if choix_menu_collaborateurs == "SUPPRIMER":
+                        ViewMenu.clear()
                         if Controller.check_authorization_permission(token, collaborateur_role, "supprimer_collaborateur"):
                             while True:
                                 id = ViewCollaborateur.demander_id_du_collaborateur_a_supprimer()
                                 collaborateurs = Collaborateur.selectionner_collaborateurs_par_id(id)
                                 collaborateur = collaborateurs[0]
                                 if ViewCollaborateur.demander_de_confirmer_suppression_collaborateur(collaborateur) is False:
+                                    ViewMenu.clear()
                                     break
                                 else:
-                                    Controller.supprimer_collaborateur(collaborateur)
+                                    Controller.supprimer_obj(collaborateur)
+                                    ViewMenu.clear()
                                     break
 
                     if choix_menu_collaborateurs == "REVENIR":
+                        ViewMenu.clear()
                         break
 
                     if choix_menu_collaborateurs == "QUITTER":
                         exit()
 
-            
 
-        # # Controller.enregistrer_contrat()
-        # # contrats = Contrat.lister_contrats()
-        # # Controller.modifier_contrat(contrats[1])
-        # Controller.enregistrer_client()
+            if choix_menu_principal == "CLIENTS":
+                ViewMenu.clear()
+                while True:
+                    choix_menu_clients = ViewMenu.afficher_menu_model("client")
+                    
+                    if choix_menu_clients == "AFFICHER":
+                        ViewMenu.clear()
+                        if Controller.check_authorization_permission(token, collaborateur_role, "lecture_clients"):
+                            while True:
+                                clients = Client.lister_clients_join_collaborateur()
+                                ViewClient.afficher_clients(clients)
+                                if ViewMenu.revenir_a_ecran_precedent() is True:
+                                    ViewMenu.clear()
+                                    break
+            
+                    if choix_menu_clients == "AJOUTER":
+                        ViewMenu.clear()
+                        if Controller.check_authorization_permission(token, collaborateur_role, "creer_client"):
+                            while True:
+                                Controller.enregistrer_client(collaborateur_id)
+                                if ViewClient.redemander_ajouter_client() is False:
+                                    ViewMenu.clear()
+                                    break
+
+                    if choix_menu_clients == "MODIFIER":
+                        ViewMenu.clear()
+                        if Controller.check_authorization_permission(token, collaborateur_role, "modifier_client"):
+                            while True:
+                                id = ViewClient.demander_id_du_client_a_modifier()
+                                clients = Client.selectionner_client_par_id(id)
+                                client = clients[0]
+
+                                if Controller.check_exclusive_permission(
+                                    id_fkey=client.collaborateur_id,
+                                    id=collaborateur_id
+                                    ) is False:
+                                    break
+                                
+                                Controller.modifier_client(client)
+                                if ViewClient.demander_de_modifier_un_autre_client() is False:
+                                    ViewMenu.clear()
+                                    break
+
+
+                    if choix_menu_clients == "SUPPRIMER":
+                        ViewMenu.clear()
+                        if Controller.check_authorization_permission(token, collaborateur_role, "supprimer_client"):
+                            while True:
+                                id = ViewClient.demander_id_du_client_a_supprimer()
+                                clients = Client.selectionner_client_par_id(id)
+                                client = clients[0]
+
+                                if Controller.check_exclusive_permission(
+                                    id_fkey=client.collaborateur_id,
+                                    id=collaborateur_id
+                                    ) is False:
+                                    break
+
+                                if ViewClient.demander_de_confirmer_suppression_client(client) is False:
+                                    ViewMenu.clear()
+                                    break
+                                else:
+                                    Controller.supprimer_obj(client)
+                                    ViewMenu.clear()
+                                    break
+
+                    
+                    if choix_menu_clients == "REVENIR":
+                        ViewMenu.clear()
+                        break
+
+                    if choix_menu_clients == "QUITTER":
+                        exit()

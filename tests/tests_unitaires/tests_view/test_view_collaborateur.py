@@ -64,7 +64,7 @@ def test_enter_invalide_collaborateur_email(mocker, capsys):
     assert "Erreur: L'email du collaborateur ne doit pas être vide" in sut
 
 
-def test_enter_valide_collaborateur_email(mocker):
+def test_enter_valide_collaborateur_telephone(mocker):
     """Fonctionnement avec un telephone valide ViewCollaborateur.entrer_telephone_collaborateur"""
     mocker.patch('builtins.input', return_value="555")
     sut = ViewCollaborateur.entrer_telephone_collaborateur()
@@ -72,7 +72,7 @@ def test_enter_valide_collaborateur_email(mocker):
     assert sut == "555"
 
 
-def test_enter_invalide_collaborateur_email(mocker, capsys):
+def test_enter_invalide_collaborateur_telephone(mocker, capsys):
     """Fonctionnement avec un telephone non valide ViewCollaborateur.entrer_telephone_collaborateur"""
     mocker.patch('builtins.input', side_effect=["test", "555"])
     ViewCollaborateur.entrer_telephone_collaborateur()
