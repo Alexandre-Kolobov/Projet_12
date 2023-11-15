@@ -85,7 +85,11 @@ class Collaborateur(Base):
     def lister_collaborateurs() -> List["Collaborateur"]:
         """Renvoi la liste de tous les collaborateurs"""
         return(CollaborateurQueries.lister_collaborateurs_dao(Collaborateur))
-
+    
+    @staticmethod
+    def lister_collaborateurs_join_roles() -> List["Collaborateur"]:
+        """Renvoi la liste de tous les collaborateurs"""
+        return(CollaborateurQueries.lister_collaborateurs_join_roles_dao(Collaborateur))
 
     @staticmethod
     def selectionner_collaborateurs_par_nom_prenom(nom, prenom) -> List["Collaborateur"]:

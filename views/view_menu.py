@@ -1,9 +1,11 @@
 from os import system, name
 from enum import Enum
-from rich.console import Console
-from rich.table import Table
+from rich.prompt import Confirm
 
 class ViewMenu():
+    choix_navigation =Enum("Choix",["COLLABORATEURS", "CLIENTS", "CONTRATS", "EVENEMENTS", "QUITTER"])
+    choix_crud = Enum("Choix",["AFFICHER", "AJOUTER", "MODIFIER", "SUPPRIMER", "REVENIR", "QUITTER"])
+
     @staticmethod
     def clear():
         # for windows
@@ -17,36 +19,60 @@ class ViewMenu():
     
     @staticmethod
     def afficher_menu_principal() -> str:
+        ViewMenu.clear()
         while True:
-            ViewMenu.clear()
+            
             print("----------------------------------------")
-            print("1 - Consulter la base de données")
-            print("2 - Créer/modifier dans la base de données")
-            print("3 - Quitter")
+            print("1 - Collaborateurs")
+            print("2 - Clients")
+            print("3 - Contrats")
+            print("4 - Evenements")
+            print("5 - Quitter")
             print("----------------------------------------")
 
-            Choix = Enum("Choix",["Consulter", "Créer/modifier", "Quitter"])
-            values = [enum.value for enum in Choix]
-            choix_utilisateur = int(input("Merci de selectionner parmis les options proposées:"))
+            choix = ViewMenu.choix_navigation
+            values = [enum.value for enum in choix]
+            choix_utilisateur = input("Merci de selectionner parmis les options proposées:").strip()
+
+            if choix_utilisateur.isnumeric():
+                choix_utilisateur = int(choix_utilisateur)
 
             if choix_utilisateur in values:
-                return (Choix(choix_utilisateur).name)
+                return (choix(choix_utilisateur).name)
             else:
-                input("Merci de selectionner parmis les options proposées:")
+                ViewMenu.clear()
+                print(f"Votre choix '{choix_utilisateur}' ne correspond pas aux choix proposés")
 
 
     @staticmethod
-    def afficher_collaborateurs(list_collaborateur: list):
-        ViewMenu.clear()
-        table = Table(title="List des collaborateurs")
+    def afficher_menu_collaborateurs() -> str:
+        # ViewMenu.clear()
+        while True:
+            
+            print("----------------------------------------")
+            print("1 - Afficher collaborateurs")
+            print("2 - Ajouter collaborateur")
+            print("3 - Modifier collaborateur")
+            print("4 - Supprimer collaborateur")
+            print("5 - Revenir dans le menu principal")
+            print("6 - Quitter")
+            print("----------------------------------------")
 
-        table.add_column("id", style="cyan", no_wrap=True)
-        table.add_column("Nom Prenom", style="magenta")
-        table.add_column("Role", justify="right", style="green")
+            choix = ViewMenu.choix_crud
+            values = [enum.value for enum in choix]
+            choix_utilisateur = input("Merci de selectionner parmis les options proposées:").strip()
 
-        for collaborateur in list_collaborateur:
-            table.add_row(str(collaborateur.id), f"{collaborateur.prenom} {collaborateur.nom}", str(collaborateur.role_id))
+            if choix_utilisateur.isnumeric():
+                choix_utilisateur = int(choix_utilisateur)
+
+            if choix_utilisateur in values:
+                return (choix(choix_utilisateur).name)
+            else:
+                ViewMenu.clear()
+                print(f"Votre choix '{choix_utilisateur}' ne correspond pas aux choix proposés")
 
 
-            console = Console()
-            console.print(table)
+    @staticmethod
+    def revenir_a_ecran_precedent():
+        reponse = Confirm.ask("Voulez vous revenir dans le menu des collaborateurs?")
+        return reponse

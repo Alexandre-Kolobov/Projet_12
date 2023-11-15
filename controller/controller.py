@@ -8,7 +8,8 @@ from models.role import Role
 from models.client import Client
 from models.contrat import Contrat
 from models.evenement import Evenement
-from dao.base import creer_database_tables, valider_session, supprimer_database_tables
+from dao.base import creer_database_tables, valider_session, supprimer_database_tables, valider_sessions_supprimer_objet
+from sqlalchemy.orm import make_transient
 from typing import Union
 from permissions.permissions_manager import Permissions
 import datetime
@@ -48,7 +49,11 @@ class Controller:
 
         collaborateur.hacher_mot_de_passe()
 
+        ViewMenu.clear()
+        ViewCollaborateur.confirmation_ajout_collaborateur(collaborateur)
+
         valider_session(collaborateur)
+
 
     @staticmethod
     def enregistrer_contrat() -> None:
@@ -195,6 +200,7 @@ class Controller:
         collaborateurs = Collaborateur.selectionner_collaborateurs_par_email(email)
 
         if not collaborateurs:
+            ViewMenu.clear()
             ViewCollaborateur.refuser_authentification()
             return None
         
@@ -203,6 +209,7 @@ class Controller:
         if collaborateur.verifier_mot_de_passe(mot_de_pass):
             return collaborateur
         else:
+            ViewMenu.clear()
             ViewCollaborateur.refuser_authentification() 
             return None
 
@@ -210,11 +217,13 @@ class Controller:
     @staticmethod
     def check_authorization_permission(token:str, role:str, permission_demandee:str) -> bool:
         """Permet controler validite de token et permissions"""
-        if not Collaborateur.verifier_token:
+        if not Collaborateur.verifier_token(token):
+            ViewMenu.clear()
             ViewCollaborateur.refuser_token()
             return False
 
         if not Permissions.verification_persmissions_de_collaborateur(role, permission_demandee):
+            ViewMenu.clear()
             ViewCollaborateur.refuser_permissions()
             return False
         
@@ -456,6 +465,12 @@ class Controller:
 
 
     @staticmethod
+    def supprimer_collaborateur(collaborateur:Collaborateur) -> None:
+        """Supprime un collaborateur"""
+        valider_sessions_supprimer_objet(collaborateur)
+
+
+    @staticmethod
     def run() -> None:
         """Fonction qui lance l'application"""
         # supprimer_database_tables()
@@ -469,13 +484,16 @@ class Controller:
         # on initialise un utilisateur gestionnaire pour le premiere lancement de l'application
         collaborateur_existe_dans_db = Controller.collaborateurs_existent_dans_db()
         collaborateur = None
+        ViewMenu.clear()
         if not collaborateur_existe_dans_db:
             ViewCollaborateur.initialisation_collaborateur()
             Controller.enregistrer_collaborateur(collaborateur_existe_dans_db)
             while collaborateur == None:
+                ViewCollaborateur.demander_authentification()
                 collaborateur = Controller.authentication_user()
         else:
             while collaborateur == None:
+                ViewCollaborateur.demander_authentification()
                 collaborateur = Controller.authentication_user()
 
 
@@ -485,11 +503,60 @@ class Controller:
 
         token = collaborateur.generer_token()
 
+        while True:
+            choix_menu_principal = ViewMenu.afficher_menu_principal()
+            
+            if choix_menu_principal == "COLLABORATEURS":
+                while True:
+                    ViewMenu.clear()
+                    choix_menu_collaborateurs = ViewMenu.afficher_menu_collaborateurs()
+                    
+                    if choix_menu_collaborateurs == "AFFICHER":
+                        if Controller.check_authorization_permission(token, collaborateur_role, "lecture_collaborateurs"):
+                            while True:
+                                collaborateurs = Collaborateur.lister_collaborateurs_join_roles()
+                                ViewCollaborateur.afficher_collaborateurs(collaborateurs)
+                                if ViewMenu.revenir_a_ecran_precedent() is True:
+                                    break
 
-        choix = ViewMenu.afficher_menu_principal()
-        if choix == "Consulter":
-            list_collaborateur = Collaborateur.lister_collaborateurs()
-            ViewMenu.afficher_collaborateurs(list_collaborateur)
+
+                    if choix_menu_collaborateurs == "AJOUTER":
+                        if Controller.check_authorization_permission(token, collaborateur_role, "creer_collaborateur"):
+                            while True:
+                                collaborateur_existe_dans_db = Controller.collaborateurs_existent_dans_db()
+                                Controller.enregistrer_collaborateur(collaborateur_existe_dans_db)
+                                if ViewCollaborateur.redemander_ajouter_collaborateur() is False:
+                                    break
+
+
+                    if choix_menu_collaborateurs == "MODIFIER":
+                        if Controller.check_authorization_permission(token, collaborateur_role, "modifier_collaborateur"):
+                            while True:
+                                id = ViewCollaborateur.demander_id_du_collaborateur_a_modifier()
+                                collaborateurs = Collaborateur.selectionner_collaborateurs_par_id(id)
+                                collaborateur = collaborateurs[0]
+                                Controller.modifier_collaborateur(collaborateur)
+                                if ViewCollaborateur.demander_de_modifier_un_autre_collaborateur() is False:
+                                    break
+
+
+                    if choix_menu_collaborateurs == "SUPPRIMER":
+                        if Controller.check_authorization_permission(token, collaborateur_role, "supprimer_collaborateur"):
+                            while True:
+                                id = ViewCollaborateur.demander_id_du_collaborateur_a_supprimer()
+                                collaborateurs = Collaborateur.selectionner_collaborateurs_par_id(id)
+                                collaborateur = collaborateurs[0]
+                                if ViewCollaborateur.demander_de_confirmer_suppression_collaborateur(collaborateur) is False:
+                                    break
+                                else:
+                                    Controller.supprimer_collaborateur(collaborateur)
+                                    break
+
+                    if choix_menu_collaborateurs == "REVENIR":
+                        break
+
+                    if choix_menu_collaborateurs == "QUITTER":
+                        exit()
 
             
 

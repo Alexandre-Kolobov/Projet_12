@@ -13,7 +13,10 @@ class Permissions:
 
 
     class PermissionsEnum(Enum):
+        LECTURE_COLLABORATEURS = "lecture_collaborateurs"
         CREER_COLLABORATEUR = "creer_collaborateur"
+        MODIFIER_COLLABORATEUR = "modifier_collaborateur"
+        SUPPRIMER_COLLABORATEUR = "supprimer_collaborateur"
         LECTURE_CONTRATS = "lecture_contrats"
 
     @staticmethod
@@ -28,9 +31,49 @@ class Permissions:
         # role_id = collaborateur.role_id
         # role = Role.lister_roles_par_id(role_id)
 
-        # Permissions collaborateur
+        # Permissions gestionnaire - collaborateur:
+        if collaborateur_role == RolesEnum.GESTION.value and permission_demandee == PermissionsEnum.LECTURE_COLLABORATEURS.value:
+            return True
+        
         if collaborateur_role == RolesEnum.GESTION.value and permission_demandee == PermissionsEnum.CREER_COLLABORATEUR.value:
             return True
+        
+        if collaborateur_role == RolesEnum.GESTION.value and permission_demandee == PermissionsEnum.MODIFIER_COLLABORATEUR.value:
+            return True
+        
+        if collaborateur_role == RolesEnum.GESTION.value and permission_demandee == PermissionsEnum.SUPPRIMER_COLLABORATEUR.value:
+            return True
+        
+
+        # Permissions commercial - collaborateur:
+        if collaborateur_role == RolesEnum.COMMERCIAL.value and permission_demandee == PermissionsEnum.LECTURE_COLLABORATEURS.value:
+            return True
+        
+        if collaborateur_role == RolesEnum.COMMERCIAL.value and permission_demandee == PermissionsEnum.CREER_COLLABORATEUR.value:
+            return False
+        
+        if collaborateur_role == RolesEnum.COMMERCIAL.value and permission_demandee == PermissionsEnum.MODIFIER_COLLABORATEUR.value:
+            return False
+        
+        if collaborateur_role == RolesEnum.COMMERCIAL.value and permission_demandee == PermissionsEnum.SUPPRIMER_COLLABORATEUR.value:
+            return False
+        
+
+        # Permissions support - collaborateur:
+        if collaborateur_role == RolesEnum.COMMERCIAL.value and permission_demandee == PermissionsEnum.LECTURE_COLLABORATEURS.value:
+            return True
+        
+        if collaborateur_role == RolesEnum.COMMERCIAL.value and permission_demandee == PermissionsEnum.CREER_COLLABORATEUR.value:
+            return False
+        
+        if collaborateur_role == RolesEnum.COMMERCIAL.value and permission_demandee == PermissionsEnum.MODIFIER_COLLABORATEUR.value:
+            return False
+        
+        if collaborateur_role == RolesEnum.COMMERCIAL.value and permission_demandee == PermissionsEnum.SUPPRIMER_COLLABORATEUR.value:
+            return False
+        
+        
+
         
         # Permissions contrat
         if collaborateur_role == RolesEnum.GESTION.value and permission_demandee == PermissionsEnum.LECTURE_CONTRATS.value:

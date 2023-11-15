@@ -48,3 +48,14 @@ def test_should_return_all_roles_with_same_role_name(db_session, mocks, role_ges
     assert mock_close_session.call_count == 1
     assert sut == roles
 
+
+def test_should_return_all_roles_with_same_id(db_session, mocks, role_gestionnaire):
+    """Verification qu'on recuper la liste des roles par id correctemment"""
+    mock_ouvrir_session, mock_close_session = mocks
+    role_id = role_gestionnaire.id
+    sut = RoleQueries.lister_roles_par_id_dao(Role, role_id)
+    roles = db_session.query(Role).filter(Role.id==role_id).all()
+
+    assert mock_ouvrir_session.call_count == 1
+    assert mock_close_session.call_count == 1
+    assert sut == roles

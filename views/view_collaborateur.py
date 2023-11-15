@@ -1,4 +1,21 @@
+from os import system, name
+import getpass
+from rich.console import Console
+from rich.table import Table
+from rich.prompt import Confirm
+
 class ViewCollaborateur():
+    @staticmethod
+    def clear():
+        # for windows
+        if name == 'nt':
+            _ = system('cls')
+    
+        # for mac and linux(here, os.name is 'posix')
+        else:
+            _ = system('clear')
+
+
     @staticmethod
     def entrer_prenom_collaborateur() -> str:
             while True:
@@ -64,7 +81,7 @@ class ViewCollaborateur():
         while True:
             print("----------------------------------------")
             try:
-                mot_de_passe = input("Entrer le mot de passe du collaborateur: ").strip()
+                mot_de_passe = getpass.getpass("Entrer le mot de passe du collaborateur: ").strip()
                 if mot_de_passe == "":
                     raise ValueError("Le mot de passe ne doit pas être vide")
                 break
@@ -94,20 +111,20 @@ class ViewCollaborateur():
 
 
     @staticmethod
-    def refuser_authentification() -> str:
+    def refuser_authentification():
         print("----------------------------------------")
         print("Les informations d'identification ne sont pas correctes")
         print("Merci de reesayer")
 
 
     @staticmethod
-    def refuser_token() -> str:
+    def refuser_token():
         print("----------------------------------------")
         print("Le token n'est pas correcte")
 
 
     @staticmethod
-    def refuser_permissions() -> str:
+    def refuser_permissions():
         print("----------------------------------------")
         print("Vous n'avez pas de permission pour réaliser cette action")
 
@@ -129,3 +146,75 @@ class ViewCollaborateur():
     def initialisation_collaborateur() -> None:
         print("----------------------------------------")
         print("Pour le premiere lancement de l'application nous devons créer un utilisateur gestionnaire.")
+
+
+    @staticmethod
+    def afficher_collaborateurs(list_collaborateur: list):
+        ViewCollaborateur.clear()
+        table = Table(title="List des collaborateurs")
+
+        table.add_column("id", style="cyan", no_wrap=True)
+        table.add_column("Nom Prenom", style="magenta")
+        table.add_column("Email", style="magenta")
+        table.add_column("Telephone", style="magenta")
+        table.add_column("Role id", justify="right", style="green")
+        table.add_column("Role name", justify="right", style="green")
+
+        for collaborateur in list_collaborateur:
+            table.add_row(
+                str(collaborateur.id),
+                f"{collaborateur.prenom} {collaborateur.nom}",
+                str(collaborateur.email),
+                str(collaborateur.telephone),
+                str(collaborateur.role_id),
+                str(collaborateur.role.role_name)
+                )
+
+
+        console = Console()
+        console.print(table)
+
+    @staticmethod
+    def confirmation_ajout_collaborateur(collaborateur) -> None:
+        print("----------------------------------------")
+        print(f"Le collaborateur {collaborateur.nom} {collaborateur.prenom} a été ajouté")
+
+
+    @staticmethod
+    def redemander_ajouter_collaborateur() -> None:
+        print("----------------------------------------")
+        reponse = Confirm.ask("Voulez-vous ajouter un autre collaborateur?")
+        return reponse
+    
+    @staticmethod
+    def demander_id_du_collaborateur_a_modifier() -> str:
+        print("----------------------------------------")
+        id_collaborateur = input("Indiquer l'id du collaborateur à modifier:")
+        return id_collaborateur
+    
+    @staticmethod
+    def demander_id_du_collaborateur_a_supprimer() -> str:
+        print("----------------------------------------")
+        id_collaborateur = input("Indiquer l'id du collaborateur à supprimer:")
+        return id_collaborateur
+    
+    @staticmethod
+    def demander_de_modifier_un_autre_collaborateur() -> None:
+        print("----------------------------------------")
+        reponse = Confirm.ask("Voulez-vous modifier un autre collaborateur?")
+        return reponse
+    
+    @staticmethod
+    def demander_authentification() -> None:
+        print("----------------------------------------")
+        print("Entrer votre email et mot de passe pour se connecter")
+
+
+    @staticmethod
+    def demander_de_confirmer_suppression_collaborateur(collaborateur) -> None:
+        print("----------------------------------------")
+        reponse = Confirm.ask(
+            "Confirmer la suppression du collaborateur - "
+            f"id{collaborateur.id} {collaborateur.nom} {collaborateur.prenom}"
+            )
+        return reponse
