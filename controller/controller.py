@@ -9,7 +9,6 @@ from models.client import Client
 from models.contrat import Contrat
 from models.evenement import Evenement
 from dao.base import creer_database_tables, valider_session, supprimer_database_tables, valider_sessions_supprimer_objet
-from sqlalchemy.orm import make_transient
 from typing import Union
 from permissions.permissions_manager import Permissions
 import datetime
@@ -59,11 +58,11 @@ class Controller:
     def enregistrer_contrat() -> None:
         """Permet de creer instance d'un contrat"""
         montant_total = ViewContrat.entrer_montant_total()
-        reste_a_payer = ViewContrat.entrer_reste_a_payer()
+        reste_a_payer = ViewContrat.entrer_reste_a_payer(montant_total)
         date_creation = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         statut_signe = ViewContrat.choisir_statut()
 
-        clients = Client.clients_as_list_of_dict()
+        clients = Client.lister_clients()
         clients_as_list_of_dict = Client.clients_as_list_of_dict(clients)
         client_id = ViewContrat.choisir_client_id(clients_as_list_of_dict)
 
@@ -645,4 +644,108 @@ class Controller:
                         break
 
                     if choix_menu_clients == "QUITTER":
+                        exit()
+
+
+            if choix_menu_principal == "CONTRATS":
+                ViewMenu.clear()
+                while True:
+                    choix_menu_contrat = ViewMenu.afficher_menu_model("contrat")
+                    
+                    if choix_menu_contrat == "AFFICHER":
+                        ViewMenu.clear()
+                        if Controller.check_authorization_permission(token, collaborateur_role, "lecture_contrats"):
+                            while True:
+                                if collaborateur_role == "commercial":
+                                   
+                                    choix_filtre_contrat = ViewMenu.afficher_menu_filtre_contrat()
+                                    
+                                    if choix_filtre_contrat == "TOUS":
+                                        while True:
+                                            contrats = Contrat.lister_contrats_join_collaborateur_join_client()
+
+                                            ViewContrat.afficher_contrats(contrats)
+                                            if ViewMenu.revenir_a_ecran_precedent() is True:
+                                                ViewMenu.clear()
+                                                break
+                                    
+                                    if choix_filtre_contrat == "SIGNE":
+                                        while True:
+                                            contrats = Contrat.lister_contrats_join_collaborateur_join_client_signature(True)
+
+                                            ViewContrat.afficher_contrats(contrats)
+                                            if ViewMenu.revenir_a_ecran_precedent() is True:
+                                                ViewMenu.clear()
+                                                break
+
+                                    if choix_filtre_contrat == "NON_SIGNE":
+                                        while True:
+                                            contrats = Contrat.lister_contrats_join_collaborateur_join_client_signature(False)
+
+                                            ViewContrat.afficher_contrats(contrats)
+                                            if ViewMenu.revenir_a_ecran_precedent() is True:
+                                                ViewMenu.clear()
+                                                break
+                                    
+                                    if choix_filtre_contrat == "PAYE":
+                                        while True:
+                                            contrats = Contrat.lister_contrats_join_collaborateur_join_client_paye()
+
+                                            ViewContrat.afficher_contrats(contrats)
+                                            if ViewMenu.revenir_a_ecran_precedent() is True:
+                                                ViewMenu.clear()
+                                                break
+
+                                    if choix_filtre_contrat == "NON_PAYE":
+                                        while True:
+                                            contrats = Contrat.lister_contrats_join_collaborateur_join_client_non_paye()
+
+                                            ViewContrat.afficher_contrats(contrats)
+                                            if ViewMenu.revenir_a_ecran_precedent() is True:
+                                                ViewMenu.clear()
+                                                break
+
+                                    if choix_filtre_contrat == "PAR_CLIENT":
+                                        while True:
+                                            client_id = ViewClient.demander_id_du_client_a_filtrer()
+                                            contrats = Contrat.lister_contrats_join_collaborateur_join_client_par_client(client_id)
+
+                                            ViewContrat.afficher_contrats(contrats)
+                                            if ViewMenu.revenir_a_ecran_precedent() is True:
+                                                ViewMenu.clear()
+                                                break
+
+
+                                    if choix_filtre_contrat == "REVENIR":
+                                        ViewMenu.clear()
+                                        break
+
+                                    if choix_filtre_contrat == "QUITTER":
+                                        exit()
+
+                                else:
+                                    contrats = Contrat.lister_contrats_join_collaborateur_join_client()
+
+                                    ViewContrat.afficher_contrats(contrats)
+                                    if ViewMenu.revenir_a_ecran_precedent() is True:
+                                        ViewMenu.clear()
+                                        break
+
+                    
+                    if choix_menu_contrat == "AJOUTER":
+                        ViewMenu.clear()
+                        if Controller.check_authorization_permission(token, collaborateur_role, "creer_contrat"):
+                            while True:
+                                Controller.enregistrer_contrat()
+                                if ViewContrat.redemander_ajouter_contrat() is False:
+                                    ViewMenu.clear()
+                                    break
+
+
+
+                    if choix_menu_contrat == "REVENIR":
+                        ViewMenu.clear()
+                        break
+
+                    if choix_menu_contrat == "QUITTER":
                         exit()

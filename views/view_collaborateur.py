@@ -158,7 +158,7 @@ class ViewCollaborateur():
         table.add_column("Email", style="magenta")
         table.add_column("Telephone", style="magenta")
         table.add_column("Role id", justify="right", style="green")
-        table.add_column("Role name", justify="right", style="green")
+        table.add_column("Role name", style="green")
 
         for collaborateur in list_collaborateur:
             table.add_row(

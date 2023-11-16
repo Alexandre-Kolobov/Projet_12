@@ -338,7 +338,7 @@ def test_should_remove_collaborateur_from_db(mocker, collaborateur_commercial):
 
 
 def test_should_create_client_instance(mocker):
-        """Verifie que la fonction Controller.enregistrer_collaborateur enregistre premiere collaborateur comme gestionnaire"""
+        """Verifie que la fonction Controller.enregistrer_collaborateur enregistre un client"""
 
         mock_prenom = mocker.patch(
             'controller.controller.ViewClient.entrer_nom_client',
@@ -386,3 +386,42 @@ def test_should_return_false_if_ids_are_not_the_same():
     """Verification de l'égalité des id pour fonction Controller.check_exclusive_permission"""
     sut = Controller.check_exclusive_permission(2,1)
     assert sut == False 
+
+
+def test_should_create_contrat_instance(mocker):
+        """Verifie que la fonction Controller.enregistrer_contrat enregistre un contrat"""
+
+        mock_montant_total = mocker.patch(
+            'controller.controller.ViewContrat.entrer_montant_total',
+            return_value=100
+            )
+        
+        mock_reste_a_payer = mocker.patch(
+            'controller.controller.ViewContrat.entrer_reste_a_payer',
+            return_value=50
+            )
+        
+        mock_statut_signe = mocker.patch(
+            'controller.controller.ViewContrat.choisir_statut',
+            return_value=True
+            )
+        
+        mock_client_id = mocker.patch(
+            'controller.controller.ViewContrat.choisir_client_id',
+            return_value=1
+            )
+        
+        mock_collaborateur_id = mocker.patch(
+            'controller.controller.ViewContrat.choisir_collaborateur_id',
+            return_value=1
+            )
+
+        mock_valider_session = mocker.patch("controller.controller.valider_session")
+        
+        Controller.enregistrer_contrat()
+        assert mock_valider_session.call_count == 1
+        assert mock_valider_session.call_args.args[0].montant_total == 100
+        assert mock_valider_session.call_args.args[0].reste_a_payer == 50
+        assert mock_valider_session.call_args.args[0].statut_signe == True
+        assert mock_valider_session.call_args.args[0].client_id == 1
+        assert mock_valider_session.call_args.args[0].collaborateur_id == 1

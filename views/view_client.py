@@ -139,7 +139,7 @@ class ViewClient():
         table.add_column("Date de création", style="magenta")
         table.add_column("Date de mise à jour", style="magenta")
         table.add_column("Commercial id", justify="right", style="green")
-        table.add_column("Commerciale Nom Prenom", justify="right", style="green")
+        table.add_column("Commerciale Nom Prenom", style="green")
 
         for client in list_clients:
             table.add_row(
@@ -191,3 +191,9 @@ class ViewClient():
             f"id{client.id} {client.nom} {client.prenom} {client.entreprise}"
             )
         return reponse
+    
+    @staticmethod
+    def demander_id_du_client_a_filtrer() -> str:
+        print("----------------------------------------")
+        id_client = input("Indiquer l'id du client pour appliquer le filtre:")
+        return id_client

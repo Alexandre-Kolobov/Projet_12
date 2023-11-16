@@ -3,8 +3,9 @@ from enum import Enum
 from rich.prompt import Confirm
 
 class ViewMenu():
-    choix_navigation =Enum("Choix",["COLLABORATEURS", "CLIENTS", "CONTRATS", "EVENEMENTS", "QUITTER"])
+    choix_navigation = Enum("Choix",["COLLABORATEURS", "CLIENTS", "CONTRATS", "EVENEMENTS", "QUITTER"])
     choix_crud = Enum("Choix",["AFFICHER", "AJOUTER", "MODIFIER", "SUPPRIMER", "REVENIR", "QUITTER"])
+    choix_filtre_contrat = Enum("Choix",["TOUS", "SIGNE", "NON_SIGNE", "PAYE", "NON_PAYE", "PAR_CLIENT", "REVENIR", "QUITTER"])
 
     @staticmethod
     def clear():
@@ -76,3 +77,32 @@ class ViewMenu():
         reponse = Confirm.ask("Voulez vous revenir dans le menu des collaborateurs?")
         return reponse
     
+
+    @staticmethod
+    def afficher_menu_filtre_contrat() -> str:
+        # ViewMenu.clear()
+        while True:
+            
+            print("----------------------------------------")
+            print(f"1 - Afficher tous les contrats")
+            print(f"2 - Afficher tous les contrats signés")
+            print(f"3 - Afficher tous les contrats non signés")
+            print(f"4 - Afficher tous les contrats payés")
+            print(f"5 - Afficher tous les contrats non payés")
+            print(f"6 - Afficher tous les contrats par client")
+            print(f"7 - Revenir dans le menu principal")
+            print(f"8 - Quitter")
+            print(f"----------------------------------------")
+
+            choix = ViewMenu.choix_filtre_contrat
+            values = [enum.value for enum in choix]
+            choix_utilisateur = input("Merci de selectionner parmis les options proposées:").strip()
+
+            if choix_utilisateur.isnumeric():
+                choix_utilisateur = int(choix_utilisateur)
+
+            if choix_utilisateur in values:
+                return (choix(choix_utilisateur).name)
+            else:
+                ViewMenu.clear()
+                print(f"Votre choix '{choix_utilisateur}' ne correspond pas aux choix proposés")

@@ -31,3 +31,29 @@ class Contrat(Base):
     def lister_contrats_par_id(contrat_id) -> List["Contrat"]:
         """Renvoi la liste de tous les contrats en fonction de leur id"""
         return(ContratQueries.lister_contrats_par_id_dao(Contrat, contrat_id))
+    
+    @staticmethod
+    def lister_contrats_join_collaborateur_join_client() -> List["Contrat"]:
+        """Renvoi la liste de tous les contrats avec collaborateur et client associés"""
+        return(ContratQueries.lister_contrats_join_collaborateur_join_client_dao(Contrat))
+    
+
+    @staticmethod
+    def lister_contrats_join_collaborateur_join_client_signature(signature) -> List["Contrat"]:
+        """Renvoi la liste de tous les contrats avec collaborateur et client associés filtré par signature"""
+        return(ContratQueries.lister_contrats_join_collaborateur_join_client_signature_dao(Contrat, signature))
+    
+    @staticmethod
+    def lister_contrats_join_collaborateur_join_client_paye() -> List["Contrat"]:
+        """Renvoi la liste de tous les contrats avec collaborateur et client associés filtré par si payé"""
+        return(ContratQueries.lister_contrats_join_collaborateur_join_client_paye_dao(Contrat))
+    
+    @staticmethod
+    def lister_contrats_join_collaborateur_join_client_non_paye() -> List["Contrat"]:
+        """Renvoi la liste de tous les contrats avec collaborateur et client associés filtré par si non payé"""
+        return(ContratQueries.lister_contrats_join_collaborateur_join_client_non_paye_dao(Contrat))
+    
+    @staticmethod
+    def lister_contrats_join_collaborateur_join_client_par_client(client_id) -> List["Contrat"]:
+        """Renvoi la liste de tous les contrats avec collaborateur et client associés filtré par client"""
+        return(ContratQueries.lister_contrats_join_collaborateur_join_client_par_client_dao(Contrat, client_id))
