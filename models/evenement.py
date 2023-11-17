@@ -20,7 +20,7 @@ class Evenement(Base):
     attendees: Mapped[int] = mapped_column(Integer, nullable=False)
     notes: Mapped[str] = mapped_column(String(1000), nullable=False)
     contrat_id: Mapped[int] = mapped_column(ForeignKey("contrat.id"), nullable=False)
-    collaborateur_id: Mapped[int] = mapped_column(ForeignKey("collaborateur.id"), nullable=False)
+    collaborateur_id: Mapped[int] = mapped_column(ForeignKey("collaborateur.id"), nullable=True)
 
     contrat = relationship("Contrat", uselist=False, back_populates="evenement")
     collaborateur = relationship("Collaborateur", back_populates="evenements")
@@ -29,3 +29,24 @@ class Evenement(Base):
     def lister_evenements() -> List["Evenement"]:
         """Renvoi la liste des evenements"""
         return(EvenementQueries.lister_evenements_dao(Evenement))
+    
+    @staticmethod
+    def lister_evenements_join_contrat_collaborateurs_client() -> List["Evenement"]:
+        """Renvoi la liste des evenements"""
+        return(EvenementQueries.lister_evenements_join_contrat_collaborateurs_client_dao(Evenement))
+    
+    @staticmethod
+    def lister_evenements_par_collaborateur(id) -> List["Evenement"]:
+        """Renvoi la liste des evenements"""
+        return(EvenementQueries.lister_evenements_par_collaborateur_dao(Evenement, id))
+    
+    @staticmethod
+    def lister_evenements_par_id(id) -> List["Evenement"]:
+        """Renvoi la liste des evenements"""
+        return(EvenementQueries.lister_evenements_par_id_dao(Evenement, id))
+    
+
+    @staticmethod
+    def lister_evenements_sans_collaborateur() -> List["Evenement"]:
+        """Renvoi la liste des evenements"""
+        return(EvenementQueries.lister_evenements_sans_collaborateur_dao(Evenement, id))

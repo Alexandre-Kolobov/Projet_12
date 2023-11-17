@@ -28,6 +28,11 @@ class Permissions:
         MODIFIER_CONTRATS = "modifier_contrat"
         SUPPRIMER_CONTRATS = "supprimer_contrat"
 
+        LECTURE_EVENEMENTS = "lecture_evenements"
+        CREER_EVENEMENTS = "creer_evenement"
+        MODIFIER_EVENEMENTS = "modifier_evenement"
+        SUPPRIMER_EVENEMENTS = "supprimer_evenement"
+
     @staticmethod
     def verification_persmissions_de_collaborateur(
         collaborateur_role:str,
@@ -147,7 +152,7 @@ class Permissions:
             return False
         
         if collaborateur_role == RolesEnum.COMMERCIAL.value and permission_demandee == PermissionsEnum.MODIFIER_CONTRATS.value:
-            return False
+            return True
           
         if collaborateur_role == RolesEnum.COMMERCIAL.value and permission_demandee == PermissionsEnum.SUPPRIMER_CONTRATS.value:
             return False
@@ -167,7 +172,46 @@ class Permissions:
             return False
         
 
+        # Permissions gestionnaire - evenement:
+        if collaborateur_role == RolesEnum.GESTION.value and permission_demandee == PermissionsEnum.LECTURE_EVENEMENTS.value:
+            return True
+        
+        if collaborateur_role == RolesEnum.GESTION.value and permission_demandee == PermissionsEnum.CREER_EVENEMENTS.value:
+            return False
+        
+        if collaborateur_role == RolesEnum.GESTION.value and permission_demandee == PermissionsEnum.MODIFIER_EVENEMENTS.value:
+            return True
+          
+        if collaborateur_role == RolesEnum.GESTION.value and permission_demandee == PermissionsEnum.SUPPRIMER_EVENEMENTS.value:
+            return True
+        
 
+        # Permissions commercial - evenement:
+        if collaborateur_role == RolesEnum.COMMERCIAL.value and permission_demandee == PermissionsEnum.LECTURE_EVENEMENTS.value:
+            return True
+        
+        if collaborateur_role == RolesEnum.COMMERCIAL.value and permission_demandee == PermissionsEnum.CREER_EVENEMENTS.value:
+            return True
+        
+        if collaborateur_role == RolesEnum.COMMERCIAL.value and permission_demandee == PermissionsEnum.MODIFIER_EVENEMENTS.value:
+            return False
+          
+        if collaborateur_role == RolesEnum.COMMERCIAL.value and permission_demandee == PermissionsEnum.SUPPRIMER_EVENEMENTS.value:
+            return False
+        
+
+        # Permissions support - evenement:
+        if collaborateur_role == RolesEnum.SUPPORT.value and permission_demandee == PermissionsEnum.LECTURE_EVENEMENTS.value:
+            return True
+        
+        if collaborateur_role == RolesEnum.SUPPORT.value and permission_demandee == PermissionsEnum.CREER_EVENEMENTS.value:
+            return False
+        
+        if collaborateur_role == RolesEnum.SUPPORT.value and permission_demandee == PermissionsEnum.MODIFIER_EVENEMENTS.value:
+            return True
+          
+        if collaborateur_role == RolesEnum.SUPPORT.value and permission_demandee == PermissionsEnum.SUPPRIMER_EVENEMENTS.value:
+            return False
 
         
         return False

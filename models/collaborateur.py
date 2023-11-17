@@ -120,3 +120,9 @@ class Collaborateur(Base):
         """Renvoi les infos des collaborateurs sous form de list des dictionnaires"""
         collaborateur_as_list_of_dict = [{collaborateur.id:f"{collaborateur.nom} {collaborateur.prenom}"} for collaborateur in collaborateurs]
         return (collaborateur_as_list_of_dict)
+    
+
+    @staticmethod
+    def selectionner_collaborateurs_par_client_id(client_id) -> List["Collaborateur"]:
+        """Renvoi la liste des collaborateurs en fonction de client id associé"""
+        return(CollaborateurQueries.sselectionner_collaborateurs_par_client_id_dao(Collaborateur, client_id))

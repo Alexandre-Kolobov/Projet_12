@@ -61,3 +61,24 @@ def test_should_retourn_list_of_collaborateurs_join_role_ordered_by_id(mocker):
     mock.assert_called_once_with(Collaborateur) # si ne retourne pas AssertionError c'est ok 
     assert mock.call_count == 1  # Pour confirmer appel au mock
    
+
+def test_should_return_list_of_collaborateurs(mocker):
+    """La fonction doit retourner une liste des collaborateurs Collaborateur.selectionner_collaborateurs_par_role_id
+    en applant fonction CollaborateurQueries.selectionner_collaborateurs_par_id_dao"""
+
+    mock = mocker.patch('models.collaborateur.CollaborateurQueries.selectionner_collaborateurs_par_role_id_dao')
+
+    sut = Collaborateur.selectionner_collaborateurs_par_role_id(2)
+
+    mock.assert_called_once_with(Collaborateur, 2) # si ne retourne pas AssertionError c'est ok 
+    assert mock.call_count == 1  # Pour confirmer appel au mock
+
+
+def test_should_return_list_of_dicts(collaborateur_commercial):
+    """La fonction doit retourner une liste des dictionnaire des collaborateurs Collaborateur.collaborateurs_as_list_of_dict"""
+
+    list_collaborateur = [collaborateur_commercial]
+    sut = Collaborateur.collaborateurs_as_list_of_dict(list_collaborateur)
+
+    assert sut == [{collaborateur_commercial.id:
+                    f"{collaborateur_commercial.nom} {collaborateur_commercial.prenom}"}]

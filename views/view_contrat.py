@@ -79,7 +79,7 @@ class ViewContrat():
                 if not choix_client.isnumeric() or choix_client == "":
                     raise ValueError("Merci de choisir parmis les clients proposés")
                 
-                if not int(choix_client) in range(1, i+1):
+                if not int(choix_client) in range(1, i):
                     raise ValueError("Merci de choisir parmis les clients proposés")
                 
                 choix_client = keys[int(choix_client)]
@@ -111,7 +111,7 @@ class ViewContrat():
                 if not choix_collaborateur.isnumeric() or choix_collaborateur == "":
                     raise ValueError("Merci de choisir parmis les collaborateurs proposés")
                 
-                if not int(choix_collaborateur) in range(1, i+1):
+                if not int(choix_collaborateur) in range(1, i):
                     raise ValueError("Merci de choisir parmis les collaborateurs proposés")
                 
                 choix_collaborateur = keys[int(choix_collaborateur)]
@@ -172,3 +172,75 @@ class ViewContrat():
         print("----------------------------------------")
         reponse = Confirm.ask("Voulez-vous ajouter un autre contrat?")
         return reponse
+    
+    @staticmethod
+    def redemander_modifier_un_autre_contrat() -> None:
+        print("----------------------------------------")
+        reponse = Confirm.ask("Voulez-vous modifier un autre contrat?")
+        return reponse
+    
+
+    @staticmethod
+    def demander_id_du_contrat_a_modifier() -> str:
+        while True:
+            print("----------------------------------------")
+            try:
+                id_contrat = input("Indiquer l'id du contrat à modifier:").strip()
+                if not id_contrat.isnumeric() or id_contrat == "":
+                    raise ValueError("L'id du contrat doit être numerique et ne pas être vide")
+                break
+            except ValueError as exc:
+                print("Erreur: " + str(exc))
+
+        return id_contrat
+    
+    @staticmethod
+    def demander_id_du_contrat_a_supprimer() -> str:
+        while True:
+            print("----------------------------------------")
+            try:
+                id_contrat = input("Indiquer l'id du contrat à supprimer:").strip()
+                if not id_contrat.isnumeric() or id_contrat == "":
+                    raise ValueError("L'id du contrat doit être numerique et ne pas être vide")
+                break
+            except ValueError as exc:
+                print("Erreur: " + str(exc))
+
+        return id_contrat
+    
+    
+    @staticmethod
+    def contrat_avec_id_nexiste_pas(id:str) -> None:
+        print("----------------------------------------")
+        print(f"Contrat avec id {id} n'existe pas")
+
+
+    @staticmethod
+    def demander_de_confirmer_suppression_contrat(contrat) -> None:
+        print("----------------------------------------")
+        reponse = Confirm.ask(
+            "Confirmer la suppression du contrat - "
+            f"id{contrat.id}"
+            )
+        return reponse
+    
+
+    @staticmethod
+    def demander_id_du_contrat_pour_evenement() -> str:
+        while True:
+            print("----------------------------------------")
+            try:
+                id_contrat = id_contrat = input("Indiquer l'id du contrat pour lequel vous voulez créer un événement:").strip()
+                if not id_contrat.isnumeric() or id_contrat == "":
+                    raise ValueError("L'id du contrat doit être numerique et ne pas être vide")
+                break
+            except ValueError as exc:
+                print("Erreur: " + str(exc))
+
+        return id_contrat
+    
+    @staticmethod
+    def contrat_avec_id_nest_pas_signe() -> None:
+        print("----------------------------------------")
+        print("Ce contrat n'est pas signé. Impossible de créer un événement.")
+        

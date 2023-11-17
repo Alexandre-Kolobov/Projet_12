@@ -62,18 +62,21 @@ class Controller:
         date_creation = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         statut_signe = ViewContrat.choisir_statut()
 
-        clients = Client.lister_clients()
+        clients = Client.lister_clients_join_collaborateur()
         clients_as_list_of_dict = Client.clients_as_list_of_dict(clients)
         client_id = ViewContrat.choisir_client_id(clients_as_list_of_dict)
 
-        roles = Role.lister_roles_par_nom("commercial")
-        role = roles[0]
-        role_id = role.id
+        # roles = Role.lister_roles_par_nom("commercial")
+        # role = roles[0]
+        # role_id = role.id
 
-        commercials = Collaborateur.selectionner_collaborateurs_par_role_id(role_id)
-        commercial_as_list_of_dict = Collaborateur.collaborateurs_as_list_of_dict(commercials)
-        commercial_id = ViewContrat.choisir_collaborateur_id(commercial_as_list_of_dict)
-        collaborateur_id = commercial_id
+        # commercials = Collaborateur.selectionner_collaborateurs_par_role_id(role_id)
+        # commercial_as_list_of_dict = Collaborateur.collaborateurs_as_list_of_dict(commercials)
+        # commercial_id = ViewContrat.choisir_collaborateur_id(commercial_as_list_of_dict)
+        # collaborateur_id = commercial_id
+
+        commercials = Collaborateur.selectionner_collaborateurs_par_client_id(client_id)
+        commercial = commercials[0]
 
         contrat = Contrat(
             montant_total=montant_total,
@@ -81,7 +84,7 @@ class Controller:
             date_creation=date_creation,
             statut_signe=statut_signe,
             client_id=client_id,
-            collaborateur_id=collaborateur_id
+            collaborateur_id=commercial.id
             )
 
         valider_session(contrat)
@@ -113,7 +116,7 @@ class Controller:
 
 
     @staticmethod
-    def enregistrer_evenement() -> None:
+    def enregistrer_evenement(contrat) -> None:
         """Permet de creer instance d'un evenement"""
         date_debut = ViewEvenement.entrer_date_debut_evenement()
         date_fin = ViewEvenement.entrer_date_fin_evenement()
@@ -124,16 +127,15 @@ class Controller:
         location_cp = ViewEvenement.entrer_cp_evenement()
         attendees = ViewEvenement.entrer_attendees_evenement()
         notes = ViewEvenement.entrer_notes_evenement()
-        contrat_id = ViewEvenement.entrer_contrat_id_evenement()
 
-        roles = Role.lister_roles_par_nom("support")
-        role = roles[0]
-        role_id = role.id
+        # roles = Role.lister_roles_par_nom("support")
+        # role = roles[0]
+        # role_id = role.id
 
-        support = Collaborateur.selectionner_collaborateurs_par_role_id(role_id)
-        support_as_list_of_dict = Collaborateur.collaborateurs_as_list_of_dict(support)
-        support_id = ViewContrat.choisir_collaborateur_id(support_as_list_of_dict)
-        collaborateur_id = support_id
+        # support = Collaborateur.selectionner_collaborateurs_par_role_id(role_id)
+        # support_as_list_of_dict = Collaborateur.collaborateurs_as_list_of_dict(support)
+        # support_id = ViewContrat.choisir_collaborateur_id(support_as_list_of_dict)
+        # collaborateur_id = support_id
 
         evenement = Evenement(
             date_debut=date_debut,
@@ -145,8 +147,7 @@ class Controller:
             location_cp=location_cp,
             attendees=attendees,
             notes=notes,
-            contrat_id=contrat_id,
-            collaborateur_id=collaborateur_id
+            contrat_id=contrat.id
             )
 
         valider_session(evenement)
@@ -288,9 +289,7 @@ class Controller:
         attribut_dict = {
             "montant_total":contrat.montant_total,
             "reste_a_payer":contrat.reste_a_payer,
-            "statut_signe":contrat.statut_signe,
-            "client_id":contrat.client_id,
-            "collaborateur_id":contrat.collaborateur_id
+            "statut_signe":contrat.statut_signe
             }
 
         for key, value in attribut_dict.items():
@@ -300,31 +299,12 @@ class Controller:
                     contrat.montant_total = montant_total
 
                 if key == "reste_a_payer":
-                    reste_a_payer = ViewContrat.entrer_reste_a_payer()
+                    reste_a_payer = ViewContrat.entrer_reste_a_payer(contrat.montant_total)
                     contrat.reste_a_payer = reste_a_payer
 
                 if key == "statut_signe":
                     statut_signe = ViewContrat.choisir_statut()
                     contrat.statut_signe = statut_signe
- 
-                if key == "client_id":
-                    clients = Client.clients_as_list_of_dict()
-                    clients_as_list_of_dict = Client.clients_as_list_of_dict(clients)
-                    client_id = ViewContrat.choisir_client_id(clients_as_list_of_dict)
-                    contrat.client_id = client_id
-
-                if key == "collaborateur_id":
-                    # Choisir parmis les commerciaux
-                    roles = Role.lister_roles_par_nom("commercial")
-                    role = roles[0]
-                    role_id = role.id
-
-                    commercials = Collaborateur.selectionner_collaborateurs_par_role_id(role_id)
-                    commercial_as_list_of_dict = Collaborateur.collaborateurs_as_list_of_dict(commercials)
-                    commercial_id = ViewContrat.choisir_collaborateur_id(commercial_as_list_of_dict)
-                    collaborateur_id = commercial_id
-
-                    contrat.collaborateur_id = collaborateur_id
     
         valider_session(contrat)
 
@@ -386,7 +366,7 @@ class Controller:
 
 
     @staticmethod
-    def modifier_evenement(evenement:Evenement) -> None:
+    def modifier_evenement_gestion(evenement:Evenement) -> None:
         """Modifie les informations d'un evenement"""
 
         attribut_dict = {
@@ -399,7 +379,6 @@ class Controller:
             "location_cp":evenement.location_cp,
             "attendees":evenement.attendees,
             "notes":evenement.notes,
-            "contrat_id":evenement.contrat_id,
             "collaborateur_id":evenement.collaborateur_id,
             }
         
@@ -443,10 +422,6 @@ class Controller:
                     notes = ViewEvenement.entrer_notes_evenement()
                     evenement.notes = notes
 
-                if key == "contrat_id":
-                    contrat_id = ViewEvenement.entrer_contrat_id_evenement()
-                    evenement.contrat_id = contrat_id
-
                 if key == "collaborateur_id":
                 # Choisir parmis les supports
                     roles = Role.lister_roles_par_nom("support")
@@ -462,6 +437,67 @@ class Controller:
 
 
         valider_session(evenement)
+
+
+    @staticmethod
+    def modifier_evenement_support(evenement:Evenement) -> None:
+        """Modifie les informations d'un evenement"""
+
+        attribut_dict = {
+            "date_debut":evenement.date_debut,
+            "date_fin":evenement.date_fin,
+            "location_pays":evenement.location_pays,
+            "location_ville":evenement.location_ville,
+            "location_rue":evenement.location_rue,
+            "location_num_rue":evenement.location_num_rue,
+            "location_cp":evenement.location_cp,
+            "attendees":evenement.attendees,
+            "notes":evenement.notes,
+            }
+        
+
+        
+        for key, value in attribut_dict.items():
+            if ViewEvenement.modifier_caracteristique(key,value):
+                if key == "date_debut":
+                    date_debut = ViewEvenement.entrer_date_debut_evenement()
+                    evenement.date_debut = date_debut
+
+                if key == "date_fin":
+                    date_fin = ViewEvenement.entrer_date_fin_evenement()
+                    evenement.date_fin = date_fin
+
+                if key == "location_pays":
+                    location_pays = ViewEvenement.entrer_pays_evenement()
+                    evenement.location_pays = location_pays
+
+                if key == "location_ville":
+                    location_ville = ViewEvenement.entrer_ville_evenement()
+                    evenement.location_ville = location_ville
+
+                if key == "location_rue":
+                    location_rue = ViewEvenement.entrer_rue_evenement()
+                    evenement.location_rue = location_rue
+
+                if key == "location_num_rue":
+                    location_num_rue = ViewEvenement.entrer_numero_rue_evenement()
+                    evenement.location_num_rue = location_num_rue
+
+                if key == "location_cp":
+                    location_cp = ViewEvenement.entrer_cp_evenement()
+                    evenement.location_cp = location_cp
+
+                if key == "attendees":
+                    attendees = ViewEvenement.entrer_attendees_evenement()
+                    evenement.attendees = attendees
+
+                if key == "notes":
+                    notes = ViewEvenement.entrer_notes_evenement()
+                    evenement.notes = notes
+
+
+        valider_session(evenement)
+
 
 
     @staticmethod
@@ -741,6 +777,47 @@ class Controller:
                                     ViewMenu.clear()
                                     break
 
+                    if choix_menu_contrat == "MODIFIER":
+                        ViewMenu.clear()
+                        if Controller.check_authorization_permission(token, collaborateur_role, "modifier_contrat"):
+                            while True:
+                                id = ViewContrat.demander_id_du_contrat_a_modifier()
+                                contrats = Contrat.lister_contrats_par_id(id)
+                                if not contrats:
+                                    ViewContrat.contrat_avec_id_nexiste_pas(id)
+                                    break
+                                contrat = contrats[0]
+
+                                if collaborateur_role == "commercial":
+                                    if Controller.check_exclusive_permission(
+                                        id_fkey=contrat.collaborateur_id,
+                                        id=collaborateur_id
+                                        ) is False:
+                                        break
+
+                                Controller.modifier_contrat(contrat)
+                                if ViewContrat.redemander_modifier_un_autre_contrat() is False:
+                                    ViewMenu.clear()
+                                    break
+                
+                    if choix_menu_contrat == "SUPPRIMER":
+                        ViewMenu.clear()
+                        if Controller.check_authorization_permission(token, collaborateur_role, "supprimer_contrat"):
+                            while True:
+                                id = ViewContrat.demander_id_du_contrat_a_supprimer()
+                                contrats = Contrat.lister_contrats_par_id(id)
+                                if not contrats:
+                                    ViewContrat.contrat_avec_id_nexiste_pas(id)
+                                    break
+                                contrat = contrats[0]
+
+                                if ViewContrat.demander_de_confirmer_suppression_contrat(contrat) is False:
+                                    ViewMenu.clear()
+                                    break
+                                else:
+                                    Controller.supprimer_obj(contrat)
+                                    ViewMenu.clear()
+                                    break
 
 
                     if choix_menu_contrat == "REVENIR":
@@ -749,3 +826,162 @@ class Controller:
 
                     if choix_menu_contrat == "QUITTER":
                         exit()
+
+
+            if choix_menu_principal == "EVENEMENTS":
+                ViewMenu.clear()
+                while True:
+                    choix_menu_evenement = ViewMenu.afficher_menu_model("evenement")
+                    
+                    if choix_menu_evenement == "AFFICHER":
+                        ViewMenu.clear()
+                        if Controller.check_authorization_permission(token, collaborateur_role, "lecture_evenements"):
+                            while True:
+                                if collaborateur_role == "support":
+                                    choix_filtre_evenement = ViewMenu.afficher_menu_filtre_evenement_support()
+                                    
+                                    if choix_filtre_evenement == "TOUS":
+                                        while True:
+                                            evenements = Evenement.lister_evenements_join_contrat_collaborateurs_client()
+
+                                            ViewEvenement.afficher_evenements(evenements)
+                                            if ViewMenu.revenir_a_ecran_precedent() is True:
+                                                ViewMenu.clear()
+                                                break
+                                    
+                                    if choix_filtre_evenement == "MES_EVENEMENTS":
+                                        while True:
+                                            evenements = Evenement.lister_evenements_par_collaborateur(collaborateur_id)
+
+                                            ViewEvenement.afficher_evenements(evenements)
+                                            if ViewMenu.revenir_a_ecran_precedent() is True:
+                                                ViewMenu.clear()
+                                                break
+
+                                    if choix_filtre_evenement == "REVENIR":
+                                        ViewMenu.clear()
+                                        break
+
+                                    if choix_filtre_evenement == "QUITTER":
+                                        exit()
+
+                                elif collaborateur_role == "gestion":
+                                    choix_filtre_evenement = ViewMenu.afficher_menu_filtre_evenement_gestion()
+                                    
+                                    if choix_filtre_evenement == "TOUS":
+                                        while True:
+                                            evenements = Evenement.lister_evenements_join_contrat_collaborateurs_client()
+
+                                            ViewEvenement.afficher_evenements(evenements)
+                                            if ViewMenu.revenir_a_ecran_precedent() is True:
+                                                ViewMenu.clear()
+                                                break
+
+                                    if choix_filtre_evenement == "SANS_SUPPORT":
+                                        while True:
+                                            evenements = Evenement.lister_evenements_sans_collaborateur()
+
+                                            ViewEvenement.afficher_evenements(evenements)
+                                            if ViewMenu.revenir_a_ecran_precedent() is True:
+                                                ViewMenu.clear()
+                                                break
+
+                                    if choix_filtre_evenement == "REVENIR":
+                                        ViewMenu.clear()
+                                        break
+
+                                    if choix_filtre_evenement == "QUITTER":
+                                        exit()
+
+                                else:
+                                    evenements = Evenement.lister_evenements_join_contrat_collaborateurs_client()
+                                    ViewEvenement.afficher_evenements(evenements)
+                                    if ViewMenu.revenir_a_ecran_precedent() is True:
+                                        ViewMenu.clear()
+                                        break
+
+                    if choix_menu_evenement == "AJOUTER":
+                        ViewMenu.clear()
+                        if Controller.check_authorization_permission(token, collaborateur_role, "creer_evenement"):
+                            while True:
+                                id = ViewContrat.demander_id_du_contrat_pour_evenement()
+                                contrats = Contrat.lister_contrats_par_id(id)
+                                if not contrats:
+                                    ViewContrat.contrat_avec_id_nexiste_pas(id)
+                                    break
+                                contrat = contrats[0]
+
+                                if collaborateur_role == "commercial":
+                                    if Controller.check_exclusive_permission(
+                                        id_fkey=contrat.collaborateur_id,
+                                        id=collaborateur_id
+                                        ) is False:
+                                        break
+
+                                if contrat.statut_signe is False:
+                                    ViewContrat.contrat_avec_id_nest_pas_signe()
+                                    break
+
+
+                                Controller.enregistrer_evenement(contrat)
+                                if ViewEvenement.redemander_ajouter_evenement() is False:
+                                    ViewMenu.clear()
+                                    break
+
+                    if choix_menu_evenement == "MODIFIER":
+                        ViewMenu.clear()
+                        if Controller.check_authorization_permission(token, collaborateur_role, "modifier_evenement"):
+                            while True:
+                                id = ViewEvenement.demander_id_de_evenement_a_modifier()
+                                evenements = Evenement.lister_evenements_par_id(id)
+
+                                if not evenements:
+                                    ViewEvenement.evenement_avec_id_nexiste_pas(id)
+                                    break
+                                evenement = evenements[0]
+
+                                if collaborateur_role == "support":
+                                    if Controller.check_exclusive_permission(
+                                        id_fkey=evenement.collaborateur_id,
+                                        id=collaborateur_id
+                                        ) is False:
+                                        break
+                                
+                                if collaborateur_role == "gestion":
+                                    Controller.modifier_evenement_gestion(evenement)
+
+                                if collaborateur_role == "support":
+                                    Controller.modifier_evenement_support(evenement)
+                                
+                                if ViewEvenement.redemander_modifier_un_autre_evenement() is False:
+                                    ViewMenu.clear()
+                                    break
+
+                    if choix_menu_evenement == "SUPPRIMER":
+                        ViewMenu.clear()
+                        if Controller.check_authorization_permission(token, collaborateur_role, "supprimer_evenement"):
+                            while True:
+                                id = ViewEvenement.demander_id_evenement_a_supprimer()
+                                evenements = Evenement.lister_evenements_par_id(id)
+                                if not evenements:
+                                    ViewEvenement.evenement_avec_id_nexiste_pas(id)
+                                    break
+                                evenement = evenements[0]
+
+                                if ViewEvenement.demander_de_confirmer_suppression_evenement(contrat) is False:
+                                    ViewMenu.clear()
+                                    break
+                                else:
+                                    Controller.supprimer_obj(contrat)
+                                    ViewMenu.clear()
+                                    break
+
+                    if choix_menu_evenement == "REVENIR":
+                        ViewMenu.clear()
+                        break
+
+                    if choix_menu_evenement == "QUITTER":
+                        exit()
+
+            if choix_menu_principal == "QUITTER":
+                exit()

@@ -6,6 +6,8 @@ class ViewMenu():
     choix_navigation = Enum("Choix",["COLLABORATEURS", "CLIENTS", "CONTRATS", "EVENEMENTS", "QUITTER"])
     choix_crud = Enum("Choix",["AFFICHER", "AJOUTER", "MODIFIER", "SUPPRIMER", "REVENIR", "QUITTER"])
     choix_filtre_contrat = Enum("Choix",["TOUS", "SIGNE", "NON_SIGNE", "PAYE", "NON_PAYE", "PAR_CLIENT", "REVENIR", "QUITTER"])
+    choix_filtre_evenement_support = Enum("Choix",["TOUS", "MES_EVENEMENTS", "REVENIR", "QUITTER"])
+    choix_filtre_evenement_gestion = Enum("Choix",["TOUS", "SANS_SUPPORT", "REVENIR", "QUITTER"])
 
     @staticmethod
     def clear():
@@ -95,6 +97,57 @@ class ViewMenu():
             print(f"----------------------------------------")
 
             choix = ViewMenu.choix_filtre_contrat
+            values = [enum.value for enum in choix]
+            choix_utilisateur = input("Merci de selectionner parmis les options proposées:").strip()
+
+            if choix_utilisateur.isnumeric():
+                choix_utilisateur = int(choix_utilisateur)
+
+            if choix_utilisateur in values:
+                return (choix(choix_utilisateur).name)
+            else:
+                ViewMenu.clear()
+                print(f"Votre choix '{choix_utilisateur}' ne correspond pas aux choix proposés")
+
+    @staticmethod
+    def afficher_menu_filtre_evenement_support() -> str:
+        # ViewMenu.clear()
+        while True:
+            
+            print("----------------------------------------")
+            print(f"1 - Afficher tous les événements")
+            print(f"2 - Afficher mes événements")
+            print(f"3 - Revenir dans le menu principal")
+            print(f"4 - Quitter")
+            print(f"----------------------------------------")
+
+            choix = ViewMenu.choix_filtre_evenement_support
+            values = [enum.value for enum in choix]
+            choix_utilisateur = input("Merci de selectionner parmis les options proposées:").strip()
+
+            if choix_utilisateur.isnumeric():
+                choix_utilisateur = int(choix_utilisateur)
+
+            if choix_utilisateur in values:
+                return (choix(choix_utilisateur).name)
+            else:
+                ViewMenu.clear()
+                print(f"Votre choix '{choix_utilisateur}' ne correspond pas aux choix proposés")
+
+
+    @staticmethod
+    def afficher_menu_filtre_evenement_gestion() -> str:
+        # ViewMenu.clear()
+        while True:
+            
+            print("----------------------------------------")
+            print(f"1 - Afficher tous les événements")
+            print(f"2 - Afficher les événements sans support")
+            print(f"3 - Revenir dans le menu principal")
+            print(f"4 - Quitter")
+            print(f"----------------------------------------")
+
+            choix = ViewMenu.choix_filtre_evenement_gestion
             values = [enum.value for enum in choix]
             choix_utilisateur = input("Merci de selectionner parmis les options proposées:").strip()
 

@@ -1,5 +1,6 @@
 from dao.base import ouvrir_session, close_session
 from sqlalchemy.orm import joinedload
+from models.client import Client
 
 
 
@@ -56,6 +57,15 @@ class CollaborateurQueries:
         """Renvoi la liste des collaborateurs en fonction de leur email"""
         session = ouvrir_session()
         collaborateurs = session.query(model_class).filter(model_class.email == email).all()
+        close_session(session)
+        
+        return collaborateurs
+    
+    @staticmethod
+    def sselectionner_collaborateurs_par_client_id_dao(model_class, id):
+        """Renvoi la liste des collaborateurs en fonction de leur email"""
+        session = ouvrir_session()
+        collaborateurs = session.query(model_class).join(Client).filter(Client.id == id).all()
         close_session(session)
         
         return collaborateurs
