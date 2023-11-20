@@ -12,6 +12,7 @@ from dao.base import creer_database_tables, valider_session, supprimer_database_
 from typing import Union
 from permissions.permissions_manager import Permissions
 import datetime
+import time
 
 
 
@@ -127,15 +128,6 @@ class Controller:
         location_cp = ViewEvenement.entrer_cp_evenement()
         attendees = ViewEvenement.entrer_attendees_evenement()
         notes = ViewEvenement.entrer_notes_evenement()
-
-        # roles = Role.lister_roles_par_nom("support")
-        # role = roles[0]
-        # role_id = role.id
-
-        # support = Collaborateur.selectionner_collaborateurs_par_role_id(role_id)
-        # support_as_list_of_dict = Collaborateur.collaborateurs_as_list_of_dict(support)
-        # support_id = ViewContrat.choisir_collaborateur_id(support_as_list_of_dict)
-        # collaborateur_id = support_id
 
         evenement = Evenement(
             date_debut=date_debut,

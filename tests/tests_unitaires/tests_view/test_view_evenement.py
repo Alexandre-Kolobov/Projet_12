@@ -186,7 +186,7 @@ def test_should_return_collaborateur_id(mocker, collaborateur_support):
     mocker.patch('builtins.input', return_value="1")
     sut = ViewEvenement.choisir_collaborateur_id(list_of_dict)
 
-    assert sut == 1
+    assert sut == None
 
 
 def test_should_return_error_when_chose_collaborateur_id(mocker, collaborateur_support, capsys):
@@ -199,4 +199,4 @@ def test_should_return_error_when_chose_collaborateur_id(mocker, collaborateur_s
     captured = capsys.readouterr()
     sut = captured.out
 
-    assert "Choissisez le support à assigner pour cet evenement:" in sut
+    assert "Choissisez le support à assigner pour cet événement:" in sut

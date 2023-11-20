@@ -284,7 +284,7 @@ def test_should_update_collaborateur_instance(mocker, collaborateur_commercial, 
 
     mock_view = mocker.patch(
         'controller.controller.ViewCollaborateur.modifier_caracteristique',
-        side_effect=["y", "y", "y", "y", "y", "n"]
+        side_effect=[True, True, True, True, True, True]
         )
 
     mock_prenom = mocker.patch(
@@ -308,6 +308,13 @@ def test_should_update_collaborateur_instance(mocker, collaborateur_commercial, 
             return_value=555
             )
     
+    mock_roles = mocker.patch('controller.controller.Role.lister_roles')
+
+    mock_role = mocker.patch(
+        'controller.controller.ViewCollaborateur.choisir_role_collaborateur',
+        return_value=None
+        )
+    
     mot_de_pass = "123456"
     return_hache=bcrypt.hashpw(mot_de_pass.encode('utf-8'), bcrypt.gensalt())
     
@@ -321,13 +328,14 @@ def test_should_update_collaborateur_instance(mocker, collaborateur_commercial, 
     
     mock_valider_session = mocker.patch("controller.controller.valider_session")
     
-    Controller.enregistrer_collaborateur(False)
+    Controller.modifier_collaborateur(collaborateur_commercial)
     assert mock_valider_session.call_count == 1
     assert mock_valider_session.call_args.args[0].prenom == "Alan"
     assert mock_valider_session.call_args.args[0].nom == "Wake"
     assert mock_valider_session.call_args.args[0].email == "aw@gmail.com"
     assert mock_valider_session.call_args.args[0].telephone == 555
     assert mock_valider_session.call_args.args[0].mot_de_passe == return_hache
+    assert mock_valider_session.call_args.args[0].role == None
 
 
 def test_should_remove_collaborateur_from_db(mocker, collaborateur_commercial):
@@ -338,7 +346,7 @@ def test_should_remove_collaborateur_from_db(mocker, collaborateur_commercial):
 
 
 def test_should_create_client_instance(mocker):
-        """Verifie que la fonction Controller.enregistrer_collaborateur enregistre un client"""
+        """Verifie que la fonction Controller.enregistrer_client enregistre un client"""
 
         mock_prenom = mocker.patch(
             'controller.controller.ViewClient.entrer_nom_client',
@@ -376,6 +384,52 @@ def test_should_create_client_instance(mocker):
         assert mock_valider_session.call_args.args[0].entreprise == "Apple"
         assert mock_valider_session.call_args.args[0].collaborateur_id == 3
 
+
+def test_should_update_client_instance(mocker, client):
+    """Verifie que la fonction Controller.modifier_client permet de mettre à jour un client"""
+
+    mock_view = mocker.patch(
+        'controller.controller.ViewClient.modifier_caracteristique',
+        side_effect=[True, True, True, True, True]
+        )
+
+    mock_nom = mocker.patch(
+        'controller.controller.ViewClient.entrer_nom_client',
+        return_value="TestNom"
+        )
+    
+    mock_prenom = mocker.patch(
+        'controller.controller.ViewClient.entrer_prenom_client',
+        return_value="TestPrenom"
+        )
+    
+    mock_prenom = mocker.patch(
+        'controller.controller.ViewClient.entrer_email_client',
+        return_value="test@gmail.com"
+        )
+    
+    mock_telephone = mocker.patch(
+        'controller.controller.ViewClient.entrer_telephone_client',
+        return_value="101415"
+        )
+    
+    mock_entreprise = mocker.patch(
+        'controller.controller.ViewClient.entrer_entreprise_client',
+        return_value="TestEntreprise"
+        )
+
+    mock_valider_session = mocker.patch("controller.controller.valider_session")
+    
+    Controller.modifier_client(client)
+    assert mock_valider_session.call_count == 1
+    assert mock_valider_session.call_args.args[0].nom == "TestNom"
+    assert mock_valider_session.call_args.args[0].prenom == "TestPrenom"
+    assert mock_valider_session.call_args.args[0].email == "test@gmail.com"
+    assert mock_valider_session.call_args.args[0].telephone == "101415"
+    assert mock_valider_session.call_args.args[0].entreprise == "TestEntreprise"
+
+
+
 def test_should_return_true_if_ids_are_the_same():
     """Verification de l'égalité des id pour fonction Controller.check_exclusive_permission"""
     sut = Controller.check_exclusive_permission(1,1)
@@ -388,7 +442,7 @@ def test_should_return_false_if_ids_are_not_the_same():
     assert sut == False 
 
 
-def test_should_create_contrat_instance(mocker):
+def test_should_create_contrat_instance(mocker, collaborateur_commercial):
         """Verifie que la fonction Controller.enregistrer_contrat enregistre un contrat"""
 
         mock_montant_total = mocker.patch(
@@ -412,16 +466,254 @@ def test_should_create_contrat_instance(mocker):
             )
         
         mock_collaborateur_id = mocker.patch(
-            'controller.controller.ViewContrat.choisir_collaborateur_id',
-            return_value=1
+            'controller.controller.Collaborateur.selectionner_collaborateurs_par_client_id',
+            return_value=[collaborateur_commercial]
             )
 
         mock_valider_session = mocker.patch("controller.controller.valider_session")
         
+        print(mock_valider_session)
+
         Controller.enregistrer_contrat()
         assert mock_valider_session.call_count == 1
         assert mock_valider_session.call_args.args[0].montant_total == 100
         assert mock_valider_session.call_args.args[0].reste_a_payer == 50
         assert mock_valider_session.call_args.args[0].statut_signe == True
         assert mock_valider_session.call_args.args[0].client_id == 1
-        assert mock_valider_session.call_args.args[0].collaborateur_id == 1
+        assert mock_valider_session.call_args.args[0].collaborateur_id == collaborateur_commercial.id
+
+
+def test_should_update_contrat_instance(mocker, contrat):
+    """Verifie que la fonction Controller.modifier_contrat permet de mettre à jour un client"""
+
+    mock_view = mocker.patch(
+        'controller.controller.ViewContrat.modifier_caracteristique',
+        side_effect=[True, True, True]
+        )
+
+    mock_montant_total = mocker.patch(
+            'controller.controller.ViewContrat.entrer_montant_total',
+            return_value="100"
+            )
+    
+    mock_reste_a_payer = mocker.patch(
+            'controller.controller.ViewContrat.entrer_reste_a_payer',
+            return_value="0"
+            )
+    
+    mock_statut_signe = mocker.patch(
+            'controller.controller.ViewContrat.choisir_statut',
+            return_value=False
+            )
+
+    mock_valider_session = mocker.patch("controller.controller.valider_session")
+    
+    Controller.modifier_contrat(contrat)
+    assert mock_valider_session.call_count == 1
+    assert mock_valider_session.call_args.args[0].montant_total == "100"
+    assert mock_valider_session.call_args.args[0].reste_a_payer == "0"
+    assert mock_valider_session.call_args.args[0].statut_signe == False
+
+
+def test_should_create_evenement_instance(mocker, contrat):
+    """Verifie que la fonction Controller.enregistrer_contrat enregistre un contrat"""
+
+    mock_date_debut = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_date_debut_evenement',
+        return_value="10/10/2020 14:00:00"
+        )
+    
+    mock_date_fin = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_date_fin_evenement',
+        return_value="10/10/2021 14:00:00"
+        )
+    
+    mock_location_pays = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_pays_evenement',
+        return_value="France"
+        )
+    
+    mock_location_ville = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_ville_evenement',
+        return_value="Paris"
+        )
+    
+    mock_location_rue = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_rue_evenement',
+        return_value="RueTest"
+        )
+
+
+    mock_location_num_rue = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_numero_rue_evenement',
+        return_value="10"
+        )
+
+    mock_location_cp = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_cp_evenement',
+        return_value="78000"
+        )
+    
+    mock_attendees = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_attendees_evenement',
+        return_value="100"
+        )
+    
+    mock_notes = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_notes_evenement',
+        return_value="Test notes"
+        )
+
+
+    mock_valider_session = mocker.patch("controller.controller.valider_session")
+
+
+    Controller.enregistrer_evenement(contrat)
+    assert mock_valider_session.call_count == 1
+    assert mock_valider_session.call_args.args[0].date_debut == "10/10/2020 14:00:00"
+    assert mock_valider_session.call_args.args[0].date_fin == "10/10/2021 14:00:00"
+    assert mock_valider_session.call_args.args[0].location_pays == "France"
+    assert mock_valider_session.call_args.args[0].location_ville == "Paris"
+    assert mock_valider_session.call_args.args[0].location_rue == "RueTest"
+    assert mock_valider_session.call_args.args[0].location_num_rue == "10"
+    assert mock_valider_session.call_args.args[0].location_cp == "78000"
+    assert mock_valider_session.call_args.args[0].attendees == "100"
+    assert mock_valider_session.call_args.args[0].notes == "Test notes"
+
+
+def test_should_update_evenement_instance_gestion(mocker, evenement):
+    """Verifie que la fonction Controller.modifier_evenement_gestion
+    permet de mettre à jour un evenement pour un utilisateur gestion"""
+
+    mock_view = mocker.patch(
+        'controller.controller.ViewEvenement.modifier_caracteristique',
+        side_effect=[True, True, True, True, True, True, True, True, True, False]
+        )
+
+    mock_date_debut = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_date_debut_evenement',
+        return_value="15/10/2020 14:00:00"
+        )
+
+    mock_date_fin = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_date_fin_evenement',
+        return_value="16/10/2020 14:00:00"
+        )
+    
+    mock_location_pays = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_pays_evenement',
+        return_value="Russie"
+        )
+    
+    mock_location_ville = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_ville_evenement',
+        return_value="Moscow"
+        )
+
+    mock_location_rue = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_rue_evenement',
+        return_value="RueTest"
+        )
+    
+    mock_location_num_rue = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_numero_rue_evenement',
+        return_value="26"
+        )
+    
+    mock_location_cp = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_cp_evenement',
+        return_value="06000"
+        )
+
+    mock_attendees = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_attendees_evenement',
+        return_value="100"
+        )
+    
+    mock_notes = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_notes_evenement',
+        return_value="Toto"
+        )
+
+    mock_valider_session = mocker.patch("controller.controller.valider_session")
+    
+    Controller.modifier_evenement_gestion(evenement)
+    assert mock_valider_session.call_count == 1
+    assert mock_valider_session.call_args.args[0].date_debut == "15/10/2020 14:00:00"
+    assert mock_valider_session.call_args.args[0].date_fin == "16/10/2020 14:00:00"
+    assert mock_valider_session.call_args.args[0].location_pays == "Russie"
+    assert mock_valider_session.call_args.args[0].location_ville == "Moscow"
+    assert mock_valider_session.call_args.args[0].location_rue == "RueTest"
+    assert mock_valider_session.call_args.args[0].location_num_rue == "26"
+    assert mock_valider_session.call_args.args[0].location_cp == "06000"
+    assert mock_valider_session.call_args.args[0].attendees == "100"
+    assert mock_valider_session.call_args.args[0].notes == "Toto"
+
+
+def test_should_update_evenement_instance_support(mocker, evenement):
+    """Verifie que la fonction Controller.modifier_evenement_support
+    permet de mettre à jour un evenement pour un utilisateur support"""
+
+    mock_view = mocker.patch(
+        'controller.controller.ViewEvenement.modifier_caracteristique',
+        side_effect=[True, True, True, True, True, True, True, True, True, False]
+        )
+
+    mock_date_debut = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_date_debut_evenement',
+        return_value="15/10/2020 14:00:00"
+        )
+
+    mock_date_fin = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_date_fin_evenement',
+        return_value="16/10/2020 14:00:00"
+        )
+    
+    mock_location_pays = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_pays_evenement',
+        return_value="Russie"
+        )
+    
+    mock_location_ville = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_ville_evenement',
+        return_value="Moscow"
+        )
+
+    mock_location_rue = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_rue_evenement',
+        return_value="RueTest"
+        )
+    
+    mock_location_num_rue = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_numero_rue_evenement',
+        return_value="26"
+        )
+    
+    mock_location_cp = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_cp_evenement',
+        return_value="06000"
+        )
+
+    mock_attendees = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_attendees_evenement',
+        return_value="100"
+        )
+    
+    mock_notes = mocker.patch(
+        'controller.controller.ViewEvenement.entrer_notes_evenement',
+        return_value="Toto"
+        )
+
+    mock_valider_session = mocker.patch("controller.controller.valider_session")
+    
+    Controller.modifier_evenement_support(evenement)
+    assert mock_valider_session.call_count == 1
+    assert mock_valider_session.call_args.args[0].date_debut == "15/10/2020 14:00:00"
+    assert mock_valider_session.call_args.args[0].date_fin == "16/10/2020 14:00:00"
+    assert mock_valider_session.call_args.args[0].location_pays == "Russie"
+    assert mock_valider_session.call_args.args[0].location_ville == "Moscow"
+    assert mock_valider_session.call_args.args[0].location_rue == "RueTest"
+    assert mock_valider_session.call_args.args[0].location_num_rue == "26"
+    assert mock_valider_session.call_args.args[0].location_cp == "06000"
+    assert mock_valider_session.call_args.args[0].attendees == "100"
+    assert mock_valider_session.call_args.args[0].notes == "Toto"
