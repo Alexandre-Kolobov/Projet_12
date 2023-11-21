@@ -8,7 +8,7 @@ from sqlalchemy.orm import joinedload
 def mocks(mocker, db_session, pass_function):
     mock_ouvrir_session = mocker.patch('dao.contrat_queries.ouvrir_session', return_value=db_session)
     mock_close_session = mocker.patch("dao.contrat_queries.close_session", return_value=pass_function)
-    
+
     return mock_ouvrir_session, mock_close_session
 
 
@@ -21,7 +21,7 @@ def test_should_return_all_contrats(db_session, mocks):
             db_session.query(Contrat)
             .options(joinedload(Contrat.collaborateur), joinedload(Contrat.client))
             .order_by(Contrat.id).all()
-            )
+        )
 
     assert mock_ouvrir_session.call_count == 1
     assert mock_close_session.call_count == 1
@@ -37,9 +37,9 @@ def test_should_return_all_contrats_by_signature(db_session, mocks):
     contrats = (
             db_session.query(Contrat)
             .options(joinedload(Contrat.collaborateur), joinedload(Contrat.client))
-            .filter(Contrat.statut_signe == True)
+            .filter(Contrat.statut_signe is True)
             .order_by(Contrat.id).all()
-            )
+        )
     assert mock_ouvrir_session.call_count == 1
     assert mock_close_session.call_count == 1
 
@@ -56,12 +56,13 @@ def test_should_return_all_contrats_paid(db_session, mocks):
             .options(joinedload(Contrat.collaborateur), joinedload(Contrat.client))
             .filter(Contrat.reste_a_payer == 0)
             .order_by(Contrat.id).all()
-            )
-    
+        )
+
     assert mock_ouvrir_session.call_count == 1
     assert mock_close_session.call_count == 1
 
     assert sut == contrats
+
 
 def test_should_return_all_contrats_not_paid(db_session, mocks):
     """Doit retourner une liste des tous les contrats join collaborateur et client non payé """
@@ -73,8 +74,8 @@ def test_should_return_all_contrats_not_paid(db_session, mocks):
             .options(joinedload(Contrat.collaborateur), joinedload(Contrat.client))
             .filter(Contrat.reste_a_payer != 0)
             .order_by(Contrat.id).all()
-            )
-    
+        )
+
     assert mock_ouvrir_session.call_count == 1
     assert mock_close_session.call_count == 1
 
@@ -91,8 +92,8 @@ def test_should_return_all_contrats_per_client(db_session, mocks):
             .options(joinedload(Contrat.collaborateur), joinedload(Contrat.client))
             .filter(Contrat.client_id == 1)
             .order_by(Contrat.id).all()
-            )
-    
+        )
+
     assert mock_ouvrir_session.call_count == 1
     assert mock_close_session.call_count == 1
 
@@ -106,8 +107,8 @@ def test_should_return_all_contrats_by_id(db_session, mocks):
     sut = ContratQueries.lister_contrats_par_id_dao(Contrat, 1)
     contrats = (
             db_session.query(Contrat).filter(Contrat.id == 1).all()
-            )
-    
+        )
+
     assert mock_ouvrir_session.call_count == 1
     assert mock_close_session.call_count == 1
 

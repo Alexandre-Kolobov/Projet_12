@@ -1,5 +1,6 @@
 from views.view_collaborateur import ViewCollaborateur
 
+
 def test_should_print_initialisation_collaborateur(capsys):
     """Verifier le texte d'initialisation de collaborateur ViewCollaborateur.initialisation_collaborateur"""
     ViewCollaborateur.initialisation_collaborateur()
@@ -9,6 +10,7 @@ def test_should_print_initialisation_collaborateur(capsys):
 
     assert sut_1 in captured.out
     assert sut_2 in captured.out.strip()
+
 
 def test_enter_valide_collaborateur_first_name(mocker):
     """Fonctionnement avec un prenom valide ViewCollaborateur.entrer_prenom_collaborateur"""
@@ -102,16 +104,16 @@ def test_enter_invalide_collaborateur_password(mocker, capsys):
 
 def test_valide_choice_of_role(mocker):
     """Fonctionnement avec un choix valide ViewCollaborateur.choisir_role_collaborateur"""
-    roles_as_list_of_dict = ({1:"gestion"}, {2:"commerciale"}, {3:"support"})
+    roles_as_list_of_dict = ({1: "gestion"}, {2: "commerciale"}, {3: "support"})
     mocker.patch('builtins.input', return_value="1")
     sut = ViewCollaborateur.choisir_role_collaborateur(roles_as_list_of_dict)
 
     assert sut == 1
 
 
-def test_invalide_choice_of_role(mocker,capsys):
+def test_invalide_choice_of_role(mocker, capsys):
     """Fonctionnement avec un choix invalide ViewCollaborateur.choisir_role_collaborateur"""
-    roles_as_list_of_dict = ({1:"gestion"}, {2:"commerciale"}, {3:"support"})
+    roles_as_list_of_dict = ({1: "gestion"}, {2: "commerciale"}, {3: "support"})
     mocker.patch('builtins.input', side_effect=["4", "1"])
     ViewCollaborateur.choisir_role_collaborateur(roles_as_list_of_dict)
 
@@ -163,20 +165,21 @@ def test_should_confirm_that_collaborateur_was_added(capsys, collaborateur_gesti
 
 def test_should_return_true_if_user_want_to_add_one_more_collaborateur(mocker):
     """Verifier que la fonction ViewCollaborateur.redemander_ajouter_collaborateur retourne true"""
-    
+
     mocker.patch('builtins.input', return_value="y")
     sut = ViewCollaborateur.redemander_ajouter_collaborateur()
 
-    assert sut == True
+    assert sut is True
 
 
 def test_should_return_false_if_user_dont_want_to_add_one_more_collaborateur(mocker):
     """Verifier que la fonction ViewCollaborateur.redemander_ajouter_collaborateur retourne true"""
-    
+
     mocker.patch('builtins.input', return_value="n")
     sut = ViewCollaborateur.redemander_ajouter_collaborateur()
 
-    assert sut == False
+    assert sut is False
+
 
 def test_should_print_message_about_authentication(capsys):
     """Verifier le fonctionnement de ViewCollaborateur.demander_authentification"""
@@ -185,6 +188,7 @@ def test_should_print_message_about_authentication(capsys):
     sut = "Entrer votre email et mot de passe pour se connecter"
 
     assert sut in captured.out
+
 
 def test_should_retrun_id_to_update_from_user(mocker):
     """Verifier le fonctionnement de ViewCollaborateur.demander_id_du_collaborateur_a_modifier"""
@@ -206,35 +210,35 @@ def test_should_retrun_id_to_delete_from_user(mocker):
 
 def test_should_return_true_if_user_want_to_modify_one_more_collaborateur(mocker):
     """Verifier que la fonction ViewCollaborateur.demander_de_modifier_un_autre_collaborateur retourne true"""
-    
+
     mocker.patch('builtins.input', return_value="y")
     sut = ViewCollaborateur.demander_de_modifier_un_autre_collaborateur()
 
-    assert sut == True
+    assert sut is True
 
 
 def test_should_return_false_if_user_dont_want_to_modify_one_more_collaborateur(mocker):
     """Verifier que la fonction ViewCollaborateur.demander_de_modifier_un_autre_collaborateur retourne false"""
-    
+
     mocker.patch('builtins.input', return_value="n")
     sut = ViewCollaborateur.demander_de_modifier_un_autre_collaborateur()
 
-    assert sut == False
+    assert sut is False
 
 
 def test_should_return_true_if_user_want_to_delete_collaborateur(mocker, collaborateur_gestionnaire):
     """Verifier que la fonction ViewCollaborateur.demander_de_confirmer_suppression_collaborateur retourne true"""
-    
+
     mocker.patch('builtins.input', return_value="y")
     sut = ViewCollaborateur.demander_de_confirmer_suppression_collaborateur(collaborateur_gestionnaire)
 
-    assert sut == True
+    assert sut is True
 
 
 def test_should_return_false_if_user_dont_want_to_delete_collaborateur(mocker, collaborateur_gestionnaire):
     """Verifier que la fonction ViewCollaborateur.demander_de_confirmer_suppression_collaborateur retourne false"""
-    
+
     mocker.patch('builtins.input', return_value="n")
     sut = ViewCollaborateur.demander_de_confirmer_suppression_collaborateur(collaborateur_gestionnaire)
 
-    assert sut == False
+    assert sut is False

@@ -8,9 +8,9 @@ def test_should_retourn_liste_of_contrats_join_collaborateur_join_client_ordered
 
     mock = mocker.patch('models.contrat.ContratQueries.lister_contrats_join_collaborateur_join_client_dao')
 
-    sut = Contrat.lister_contrats_join_collaborateur_join_client()
+    Contrat.lister_contrats_join_collaborateur_join_client()
 
-    mock.assert_called_once_with(Contrat) # si ne retourne pas AssertionError c'est ok 
+    mock.assert_called_once_with(Contrat)  # si ne retourne pas AssertionError c'est ok
     assert mock.call_count == 1  # Pour confirmer appel au mock
 
 
@@ -21,9 +21,9 @@ def test_should_retourn_liste_of_contrats_join_collaborateur_join_client_filtre_
 
     mock = mocker.patch('models.contrat.ContratQueries.lister_contrats_join_collaborateur_join_client_signature_dao')
 
-    sut = Contrat.lister_contrats_join_collaborateur_join_client_signature(True)
+    Contrat.lister_contrats_join_collaborateur_join_client_signature(True)
 
-    mock.assert_called_once_with(Contrat, True) # si ne retourne pas AssertionError c'est ok 
+    mock.assert_called_once_with(Contrat, True)  # si ne retourne pas AssertionError c'est ok
     assert mock.call_count == 1  # Pour confirmer appel au mock
 
 
@@ -34,9 +34,9 @@ def test_should_retourn_liste_of_contrats_join_collaborateur_join_client_filter_
 
     mock = mocker.patch('models.contrat.ContratQueries.lister_contrats_join_collaborateur_join_client_paye_dao')
 
-    sut = Contrat.lister_contrats_join_collaborateur_join_client_paye()
+    Contrat.lister_contrats_join_collaborateur_join_client_paye()
 
-    mock.assert_called_once_with(Contrat) # si ne retourne pas AssertionError c'est ok 
+    mock.assert_called_once_with(Contrat)  # si ne retourne pas AssertionError c'est ok
     assert mock.call_count == 1  # Pour confirmer appel au mock
 
 
@@ -47,9 +47,9 @@ def test_should_retourn_liste_of_contrats_join_collaborateur_join_client_filter_
 
     mock = mocker.patch('models.contrat.ContratQueries.lister_contrats_join_collaborateur_join_client_non_paye_dao')
 
-    sut = Contrat.lister_contrats_join_collaborateur_join_client_non_paye()
+    Contrat.lister_contrats_join_collaborateur_join_client_non_paye()
 
-    mock.assert_called_once_with(Contrat) # si ne retourne pas AssertionError c'est ok 
+    mock.assert_called_once_with(Contrat)  # si ne retourne pas AssertionError c'est ok
     assert mock.call_count == 1  # Pour confirmer appel au mock
 
 
@@ -60,9 +60,9 @@ def test_should_retourn_liste_of_contrats_join_collaborateur_join_client_filter_
 
     mock = mocker.patch('models.contrat.ContratQueries.lister_contrats_join_collaborateur_join_client_par_client_dao')
 
-    sut = Contrat.lister_contrats_join_collaborateur_join_client_par_client(1)
+    Contrat.lister_contrats_join_collaborateur_join_client_par_client(1)
 
-    mock.assert_called_once_with(Contrat, 1) # si ne retourne pas AssertionError c'est ok 
+    mock.assert_called_once_with(Contrat, 1)  # si ne retourne pas AssertionError c'est ok
     assert mock.call_count == 1  # Pour confirmer appel au mock
 
 
@@ -73,7 +73,7 @@ def test_should_retourn_liste_of_contrats_filtered_by_id(mocker):
 
     mock = mocker.patch('models.contrat.ContratQueries.lister_contrats_par_id_dao')
 
-    sut = Contrat.lister_contrats_par_id("1")
+    Contrat.lister_contrats_par_id("1")
 
-    mock.assert_called_once_with(Contrat, "1") # si ne retourne pas AssertionError c'est ok 
+    mock.assert_called_once_with(Contrat, "1")  # si ne retourne pas AssertionError c'est ok
     assert mock.call_count == 1  # Pour confirmer appel au mock

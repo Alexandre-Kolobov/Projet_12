@@ -1,5 +1,6 @@
 from dao.base import ouvrir_session, close_session, add_session, commit_session
 
+
 class RoleQueries:
 
     @staticmethod
@@ -8,9 +9,9 @@ class RoleQueries:
         session = ouvrir_session()
         roles = session.query(model_class).all()
         close_session(session)
-        
+
         return roles
-    
+
     @staticmethod
     def ajouter_role_dao(role):
         session = ouvrir_session()
@@ -24,9 +25,9 @@ class RoleQueries:
         session = ouvrir_session()
         roles = session.query(model_class).filter(model_class.id == role_id).all()
         close_session(session)
-        
+
         return roles
-    
+
     @staticmethod
     def lister_roles_par_name_dao(model_class, role_name):
         """Renvoi la liste de tous les roles en fonction de leur nom"""

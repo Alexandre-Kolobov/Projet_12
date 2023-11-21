@@ -28,25 +28,24 @@ class Evenement(Base):
     @staticmethod
     def lister_evenements() -> List["Evenement"]:
         """Renvoi la liste des evenements"""
-        return(EvenementQueries.lister_evenements_dao(Evenement))
-    
+        return (EvenementQueries.lister_evenements_dao(Evenement))
+
     @staticmethod
     def lister_evenements_join_contrat_collaborateurs_client() -> List["Evenement"]:
         """Renvoi la liste des evenements"""
-        return(EvenementQueries.lister_evenements_join_contrat_collaborateurs_client_dao(Evenement))
-    
+        return (EvenementQueries.lister_evenements_join_contrat_collaborateurs_client_dao(Evenement))
+
     @staticmethod
     def lister_evenements_par_collaborateur(id) -> List["Evenement"]:
         """Renvoi la liste des evenements"""
-        return(EvenementQueries.lister_evenements_par_collaborateur_dao(Evenement, id))
-    
+        return (EvenementQueries.lister_evenements_par_collaborateur_dao(Evenement, id))
+
     @staticmethod
     def lister_evenements_par_id(id) -> List["Evenement"]:
         """Renvoi la liste des evenements"""
-        return(EvenementQueries.lister_evenements_par_id_dao(Evenement, id))
-    
+        return (EvenementQueries.lister_evenements_par_id_dao(Evenement, id))
 
     @staticmethod
     def lister_evenements_sans_collaborateur() -> List["Evenement"]:
         """Renvoi la liste des evenements"""
-        return(EvenementQueries.lister_evenements_sans_collaborateur_dao(Evenement, id))
+        return (EvenementQueries.lister_evenements_sans_collaborateur_dao(Evenement, id))

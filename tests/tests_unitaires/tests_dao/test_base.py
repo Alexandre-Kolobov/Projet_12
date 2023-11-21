@@ -4,6 +4,7 @@ from models.client import Client
 from models.contrat import Contrat
 from models.evenement import Evenement
 
+
 def test_role_valide(db_session):
     """Validation de modele role"""
     session = db_session
@@ -21,7 +22,7 @@ def test_collaborateur_valide(db_session):
     assert collaborateur.mot_de_passe == "$2b$12$meTMpjI9L6RNMTb1ahpHkeGi5NQy3U5SLM2kT3oP0HK9cny4yLEz2"
 
     role = session.query(Role).filter_by(role_name="gestion").first()
-    assert collaborateur.role_id == collaborateur.role.id
+    assert collaborateur.role_id == role.id
 
 
 def test_client_valide(db_session):
@@ -34,7 +35,7 @@ def test_client_valide(db_session):
     assert client.telephone == 555
     assert client.entreprise == "Bombe Atomic SAS"
     role_obj = session.query(Role).filter_by(role_name="commercial").first()
-    
+
     assert client.collaborateur.role.id == role_obj.id
 
 
@@ -43,7 +44,7 @@ def test_contrat_valide(db_session):
     contrat = session.query(Contrat).filter_by(montant_total=100).first()
     assert contrat.montant_total == 100
     assert contrat.reste_a_payer == 50
-    assert contrat.statut_signe == False
+    assert contrat.statut_signe is False
     assert contrat.client_id == 1
     assert contrat.collaborateur_id == 2
 
@@ -60,5 +61,3 @@ def test_evenement_valide(db_session):
     assert evenement.notes == "Party time"
     assert evenement.contrat_id == 1
     assert evenement.collaborateur_id == 3
-
-

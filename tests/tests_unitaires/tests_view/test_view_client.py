@@ -1,5 +1,6 @@
 from views.view_client import ViewClient
 
+
 def test_enter_valide_client_first_name(mocker):
     """Fonctionnement avec un prenom valide ViewClient.entrer_prenom_client"""
     mocker.patch('builtins.input', return_value="Steve")
@@ -17,6 +18,7 @@ def test_enter_invalide_collaborateur_first_name(mocker, capsys):
 
     assert "Erreur: Le prénom du client doit contenir que des lettres et ne pas être vide" in sut
 
+
 def test_enter_valide_client_name(mocker):
     """Fonctionnement avec un nom valide ViewClient.entrer_nom_client"""
     mocker.patch('builtins.input', return_value="Jobs")
@@ -33,6 +35,7 @@ def test_enter_invalide_client_name(mocker, capsys):
     sut = captured.out
 
     assert "Erreur: Le nom du client doit contenir que des lettres et ne pas être vide" in sut
+
 
 def test_enter_valide_client_email(mocker):
     """Fonctionnement avec un email valide ViewClient.entrer_email_client"""
@@ -96,36 +99,34 @@ def test_should_retrun_id_to_update_from_user(mocker):
 
     assert sut == "1"
 
+
 def test_should_return_true_if_user_want_to_modify_one_more_client(mocker):
     """Verifier que la fonction ViewClient.demander_de_modifier_un_autre_client retourne true"""
-    
     mocker.patch('builtins.input', return_value="y")
     sut = ViewClient.demander_de_modifier_un_autre_client()
 
-    assert sut == True
+    assert sut is True
 
 
 def test_should_retrun_id_to_delete_from_user(mocker):
     """Verifier le fonctionnement de ViewClient.demander_id_du_client_a_supprimer"""
-
     mocker.patch('builtins.input', return_value="1")
     sut = ViewClient.demander_id_du_client_a_supprimer()
 
     assert sut == "1"
 
+
 def test_should_return_true_if_user_want_to_delete_client(mocker, client):
     """Verifier que la fonction ViewClient.demander_de_confirmer_suppression_client retourne true"""
-    
     mocker.patch('builtins.input', return_value="y")
     sut = ViewClient.demander_de_confirmer_suppression_client(client)
 
-    assert sut == True
+    assert sut is True
 
 
 def test_should_return_false_if_user_dont_want_to_delete_client(mocker, client):
     """Verifier que la fonction ViewClient.demander_de_confirmer_suppression_client retourne false"""
-    
     mocker.patch('builtins.input', return_value="n")
     sut = ViewClient.demander_de_confirmer_suppression_client(client)
 
-    assert sut == False
+    assert sut is False

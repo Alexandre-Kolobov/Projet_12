@@ -17,11 +17,11 @@ def collaborateur_gestionnaire():
         nom="Einstein",
         prenom="Albert",
         email="ae@gmail.com",
-        telephone = 555,
-        mot_de_passe = "$2b$12$meTMpjI9L6RNMTb1ahpHkeGi5NQy3U5SLM2kT3oP0HK9cny4yLEz2",
-        role_id = 1
+        telephone=555,
+        mot_de_passe="$2b$12$meTMpjI9L6RNMTb1ahpHkeGi5NQy3U5SLM2kT3oP0HK9cny4yLEz2",
+        role_id=1
     )
-    return(valid_collaborateur_gestionnaire)
+    return (valid_collaborateur_gestionnaire)
 
 
 @pytest.fixture()
@@ -30,11 +30,11 @@ def collaborateur_commercial():
         nom="Isaac",
         prenom="Newton",
         email="ie@gmail.com",
-        telephone = 555,
-        mot_de_passe = "$2b$12$meTMpjI9L6RNMTb1ahpHkeGi5NQy3U5SLM2kT3oP0HK9cny4yLEz2",
-        role_id = 2
+        telephone=555,
+        mot_de_passe="$2b$12$meTMpjI9L6RNMTb1ahpHkeGi5NQy3U5SLM2kT3oP0HK9cny4yLEz2",
+        role_id=2
     )
-    return(valid_collaborateur_commercial)
+    return (valid_collaborateur_commercial)
 
 
 @pytest.fixture()
@@ -43,11 +43,11 @@ def collaborateur_support():
         nom="Nicolaus",
         prenom="Copernicus",
         email="nc@gmail.com",
-        telephone = 555,
-        mot_de_passe = "$2b$12$meTMpjI9L6RNMTb1ahpHkeGi5NQy3U5SLM2kT3oP0HK9cny4yLEz2",
-        role_id = 3
+        telephone=555,
+        mot_de_passe="$2b$12$meTMpjI9L6RNMTb1ahpHkeGi5NQy3U5SLM2kT3oP0HK9cny4yLEz2",
+        role_id=3
     )
-    return(valid_collaborateur_support)
+    return (valid_collaborateur_support)
 
 
 @pytest.fixture()
@@ -55,7 +55,7 @@ def role_gestionnaire():
     valid_role_gestionnaire = Role(
         role_name="gestion",
     )
-    return(valid_role_gestionnaire)
+    return (valid_role_gestionnaire)
 
 
 @pytest.fixture()
@@ -63,14 +63,15 @@ def role_commercial():
     valid_role_commercial = Role(
         role_name="commercial",
     )
-    return(valid_role_commercial)
+    return (valid_role_commercial)
+
 
 @pytest.fixture()
 def role_support():
     valid_role_support = Role(
         role_name="support",
     )
-    return(valid_role_support)
+    return (valid_role_support)
 
 
 @pytest.fixture()
@@ -84,7 +85,7 @@ def client():
         date_creation=datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
         collaborateur_id=2
     )
-    return(valid_client)
+    return (valid_client)
 
 
 @pytest.fixture()
@@ -97,13 +98,14 @@ def contrat():
         client_id=1,
         collaborateur_id=2
     )
-    return(valid_contrat)
+    return (valid_contrat)
+
 
 @pytest.fixture()
 def evenement():
     valid_evenement = Evenement(
         date_debut=datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
-        date_fin=datetime.datetime(2025,10,5,13,00,00).strftime("%d/%m/%Y %H:%M:%S"),
+        date_fin=datetime.datetime(2025, 10, 5, 13, 00, 00).strftime("%d/%m/%Y %H:%M:%S"),
         location_pays="France",
         location_ville="Paris",
         location_rue="Colbert",
@@ -114,7 +116,7 @@ def evenement():
         contrat_id=1,
         collaborateur_id=3
     )
-    return(valid_evenement)
+    return (valid_evenement)
 
 
 @pytest.fixture()
@@ -128,7 +130,7 @@ def db_session(
     client,
     contrat,
     evenement
-    ):
+):
 
     config_obj = configparser.ConfigParser()
     config_obj.read("config.ini")
@@ -164,6 +166,7 @@ def db_session(
 
     session.close()
     Base.metadata.drop_all(engine)
+
 
 @pytest.fixture()
 def pass_function():

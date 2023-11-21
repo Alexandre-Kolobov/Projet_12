@@ -13,15 +13,14 @@ class Role(Base):
 
     collaborateurs = relationship("Collaborateur", back_populates="role")
 
-
     def __repr__(self):
         return (f"id{self.id} {self.role_name}")
-    
+
     @staticmethod
     def lister_roles() -> List["Role"]:
         """Renvoi la liste de tous les roles"""
-        return(RoleQueries.lister_roles_dao(Role))
-    
+        return (RoleQueries.lister_roles_dao(Role))
+
     @staticmethod
     def initialiser_roles(roles: list) -> None:
         """Ajout des roles dans la base des donnees"""
@@ -32,10 +31,9 @@ class Role(Base):
     @staticmethod
     def lister_roles_par_id(role_id) -> List["Role"]:
         """Renvoi la liste de tous les roles en fonction de leur id"""
-        return(RoleQueries.lister_roles_par_id_dao(Role, role_id))
-    
+        return (RoleQueries.lister_roles_par_id_dao(Role, role_id))
 
     @staticmethod
     def lister_roles_par_nom(role_name) -> List["Role"]:
         """Renvoi la liste de tous les roles en fonction de leur nom"""
-        return(RoleQueries.lister_roles_par_name_dao(Role, role_name))
+        return (RoleQueries.lister_roles_par_name_dao(Role, role_name))

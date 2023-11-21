@@ -3,7 +3,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from dao.base import Base
 from dao.collaborateur_queries import CollaborateurQueries
 import bcrypt
-from typing import List, Union
+from typing import List
 import configparser
 import jwt
 from jwt.exceptions import InvalidSignatureError
@@ -25,21 +25,17 @@ class Collaborateur(Base):
     contrats = relationship("Contrat", back_populates="collaborateur")
     evenements = relationship("Evenement", back_populates="collaborateur")
 
-
     def __repr__(self):
         return (f"id{self.id} {self.nom} {self.prenom}")
-    
 
     def hacher_mot_de_passe(self) -> None:
         """Hachage et sel de mot de passe"""
         mot_de_passe_hache = bcrypt.hashpw(self.mot_de_passe.encode('utf-8'), bcrypt.gensalt())
         self.mot_de_passe = mot_de_passe_hache.decode('utf-8')
 
-
     def verifier_mot_de_passe(self, mot_de_passe: str) -> bool:
         """Controle de hache de mot de passe"""
         return bcrypt.checkpw(mot_de_passe.encode('utf-8'), self.mot_de_passe.encode('utf-8'))
-    
 
     def generer_token(self) -> str:
         """Genere JWT"""
@@ -63,9 +59,8 @@ class Collaborateur(Base):
 
         return token
 
-
     @staticmethod
-    def verifier_token(token:str) -> bool:
+    def verifier_token(token: str) -> bool:
         """Decode token et retourn son payload"""
         config_obj = configparser.ConfigParser()
         config_obj.read("config.ini")
@@ -75,54 +70,51 @@ class Collaborateur(Base):
         header_data = jwt.get_unverified_header(token)
 
         try:
-            payload_data = jwt.decode(jwt=token, key=secret, algorithms=header_data["alg"])
+            jwt.decode(jwt=token, key=secret, algorithms=header_data["alg"])
             return True
-        
+
         except InvalidSignatureError:
             return False
 
     @staticmethod
     def lister_collaborateurs() -> List["Collaborateur"]:
         """Renvoi la liste de tous les collaborateurs"""
-        return(CollaborateurQueries.lister_collaborateurs_dao(Collaborateur))
-    
+        return (CollaborateurQueries.lister_collaborateurs_dao(Collaborateur))
+
     @staticmethod
     def lister_collaborateurs_join_roles() -> List["Collaborateur"]:
         """Renvoi la liste de tous les collaborateurs"""
-        return(CollaborateurQueries.lister_collaborateurs_join_roles_dao(Collaborateur))
+        return (CollaborateurQueries.lister_collaborateurs_join_roles_dao(Collaborateur))
 
     @staticmethod
     def selectionner_collaborateurs_par_nom_prenom(nom, prenom) -> List["Collaborateur"]:
         """Renvoi la liste des collaborateurs en fonction du nom prenom indiqué"""
-        return(CollaborateurQueries.selectionner_collaborateurs_par_nom_prenom_dao(Collaborateur, nom, prenom))
-
+        return (CollaborateurQueries.selectionner_collaborateurs_par_nom_prenom_dao(Collaborateur, nom, prenom))
 
     @staticmethod
     def selectionner_collaborateurs_par_id(id) -> List["Collaborateur"]:
         """Renvoi la liste des collaborateurs en fonction de leur id"""
-        return(CollaborateurQueries.selectionner_collaborateurs_par_id_dao(Collaborateur, id))
-
+        return (CollaborateurQueries.selectionner_collaborateurs_par_id_dao(Collaborateur, id))
 
     @staticmethod
     def selectionner_collaborateurs_par_role_id(role_id) -> List["Collaborateur"]:
         """Renvoi la liste des collaborateurs en fonction de leur role id"""
-        return(CollaborateurQueries.selectionner_collaborateurs_par_role_id_dao(Collaborateur, role_id))
-
+        return (CollaborateurQueries.selectionner_collaborateurs_par_role_id_dao(Collaborateur, role_id))
 
     @staticmethod
     def selectionner_collaborateurs_par_email(email) -> List["Collaborateur"]:
         """Renvoi la liste des collaborateurs en fonction de leur email"""
-        return(CollaborateurQueries.selectionner_collaborateurs_par_email_dao(Collaborateur, email))
-    
+        return (CollaborateurQueries.selectionner_collaborateurs_par_email_dao(Collaborateur, email))
 
     @staticmethod
-    def collaborateurs_as_list_of_dict(collaborateurs:list["Collaborateur"]) -> List[dict]:
+    def collaborateurs_as_list_of_dict(collaborateurs: list["Collaborateur"]) -> List[dict]:
         """Renvoi les infos des collaborateurs sous form de list des dictionnaires"""
-        collaborateur_as_list_of_dict = [{collaborateur.id:f"{collaborateur.nom} {collaborateur.prenom}"} for collaborateur in collaborateurs]
+        collaborateur_as_list_of_dict = [
+            {collaborateur.id: f"{collaborateur.nom} {collaborateur.prenom}"} for collaborateur in collaborateurs
+        ]
         return (collaborateur_as_list_of_dict)
-    
 
     @staticmethod
     def selectionner_collaborateurs_par_client_id(client_id) -> List["Collaborateur"]:
         """Renvoi la liste des collaborateurs en fonction de client id associé"""
-        return(CollaborateurQueries.sselectionner_collaborateurs_par_client_id_dao(Collaborateur, client_id))
+        return (CollaborateurQueries.sselectionner_collaborateurs_par_client_id_dao(Collaborateur, client_id))

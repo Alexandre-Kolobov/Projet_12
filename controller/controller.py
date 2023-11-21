@@ -8,18 +8,29 @@ from models.role import Role
 from models.client import Client
 from models.contrat import Contrat
 from models.evenement import Evenement
-from dao.base import creer_database_tables, valider_session, supprimer_database_tables, valider_sessions_supprimer_objet
+from dao.base import creer_database_tables, valider_session, valider_sessions_supprimer_objet
 from typing import Union
 from permissions.permissions_manager import Permissions
 import datetime
-import time
+import sentry_sdk
+import configparser
 
+
+config_obj = configparser.ConfigParser()
+config_obj.read("config.ini")
+sentry_params = config_obj["sentry"]
+
+key = sentry_params["key"]
+
+sentry_sdk.init(
+    dsn=key
+)
 
 
 class Controller:
 
     @staticmethod
-    def enregistrer_collaborateur(first_user_exists:bool) -> None:
+    def enregistrer_collaborateur(first_user_exists: bool) -> None:
         """Permet de creer instance d'un collaborateur"""
         prenom = ViewCollaborateur.entrer_prenom_collaborateur()
         nom = ViewCollaborateur.entrer_nom_collaborateur()
@@ -27,14 +38,13 @@ class Controller:
         telephone = ViewCollaborateur.entrer_telephone_collaborateur()
         mot_de_passe = ViewCollaborateur.entrer_mot_de_passe_collaborateur()
         roles = Role.lister_roles()
-        roles_as_list_of_dict = [{role.id:role.role_name} for role in roles]
+        roles_as_list_of_dict = [{role.id: role.role_name} for role in roles]
 
         if first_user_exists:
             role_id = ViewCollaborateur.choisir_role_collaborateur(roles_as_list_of_dict)
         else:
             roles = Role.lister_roles_par_nom("gestion")
             role_id = roles[0].id
-
 
         collaborateur = Collaborateur(
             nom=nom,
@@ -45,15 +55,14 @@ class Controller:
             role_id=role_id
             )
 
-        
-
         collaborateur.hacher_mot_de_passe()
 
         ViewMenu.clear()
         ViewCollaborateur.confirmation_ajout_collaborateur(collaborateur)
 
-        valider_session(collaborateur)
+        sentry_sdk.capture_message(f"Création de l'utilisateur {collaborateur.nom} {collaborateur.prenom}")
 
+        valider_session(collaborateur)
 
     @staticmethod
     def enregistrer_contrat() -> None:
@@ -66,15 +75,6 @@ class Controller:
         clients = Client.lister_clients_join_collaborateur()
         clients_as_list_of_dict = Client.clients_as_list_of_dict(clients)
         client_id = ViewContrat.choisir_client_id(clients_as_list_of_dict)
-
-        # roles = Role.lister_roles_par_nom("commercial")
-        # role = roles[0]
-        # role_id = role.id
-
-        # commercials = Collaborateur.selectionner_collaborateurs_par_role_id(role_id)
-        # commercial_as_list_of_dict = Collaborateur.collaborateurs_as_list_of_dict(commercials)
-        # commercial_id = ViewContrat.choisir_collaborateur_id(commercial_as_list_of_dict)
-        # collaborateur_id = commercial_id
 
         commercials = Collaborateur.selectionner_collaborateurs_par_client_id(client_id)
         commercial = commercials[0]
@@ -90,9 +90,8 @@ class Controller:
 
         valider_session(contrat)
 
-
     @staticmethod
-    def enregistrer_client(collaborateur_id:int) -> None:
+    def enregistrer_client(collaborateur_id: int) -> None:
         """Permet de creer instance d'un client"""
         prenom = ViewClient.entrer_prenom_client()
         nom = ViewClient.entrer_nom_client()
@@ -114,7 +113,6 @@ class Controller:
         )
 
         valider_session(client)
-
 
     @staticmethod
     def enregistrer_evenement(contrat) -> None:
@@ -144,7 +142,6 @@ class Controller:
 
         valider_session(evenement)
 
-
     @staticmethod
     def roles_existent_dans_db() -> bool:
         """Verification de l'existance des roles dans la base des donnees"""
@@ -155,13 +152,11 @@ class Controller:
         else:
             return False
 
-
     @staticmethod
     def initialiser_roles() -> None:
         """Ajout des roles par defaut dans la base des donnees"""
         roles = [role.value for role in Permissions.RolesEnum]
         Role.initialiser_roles(roles)
-
 
     @staticmethod
     def collaborateurs_existent_dans_db() -> bool:
@@ -172,7 +167,6 @@ class Controller:
             return True
         else:
             return False
-
 
     @staticmethod
     def authentication_user() -> Union[Collaborateur, None]:
@@ -187,19 +181,18 @@ class Controller:
             ViewMenu.clear()
             ViewCollaborateur.refuser_authentification()
             return None
-        
+
         collaborateur = collaborateurs[0]
 
         if collaborateur.verifier_mot_de_passe(mot_de_pass):
             return collaborateur
         else:
             ViewMenu.clear()
-            ViewCollaborateur.refuser_authentification() 
+            ViewCollaborateur.refuser_authentification()
             return None
 
-
     @staticmethod
-    def check_authorization_permission(token:str, role:str, permission_demandee:str) -> bool:
+    def check_authorization_permission(token: str, role: str, permission_demandee: str) -> bool:
         """Permet controler validite de token et permissions"""
         if not Collaborateur.verifier_token(token):
             ViewMenu.clear()
@@ -210,43 +203,41 @@ class Controller:
             ViewMenu.clear()
             ViewCollaborateur.refuser_permissions()
             return False
-        
+
         return True
 
-
     @staticmethod
-    def check_exclusive_permission(id_fkey:int, id:int) -> bool:
+    def check_exclusive_permission(id_fkey: int, id: int) -> bool:
         if not id_fkey == id:
             ViewMenu.clear()
             ViewCollaborateur.refuser_permissions()
             return False
-        
+
         return True
-    
 
     @staticmethod
-    def modifier_collaborateur(collaborateur:Collaborateur) -> None:
+    def modifier_collaborateur(collaborateur: Collaborateur) -> None:
         """Modifie les informations d'un collaborateur"""
-        
+
         role_list = Role.lister_roles_par_id(collaborateur.role_id)
         role = role_list[0]
         role_name = role.role_name
 
         attribut_dict = {
-            "nom":collaborateur.nom,
-            "prenom":collaborateur.prenom,
-            "email":collaborateur.email,
-            "telephone":collaborateur.telephone,
-            "mot_de_passe":"*****",
-            "role":role_name
+            "nom": collaborateur.nom,
+            "prenom": collaborateur.prenom,
+            "email": collaborateur.email,
+            "telephone": collaborateur.telephone,
+            "mot_de_passe": "*****",
+            "role": role_name
             }
-        
+
         for key, value in attribut_dict.items():
-            if ViewCollaborateur.modifier_caracteristique(key,value):
+            if ViewCollaborateur.modifier_caracteristique(key, value):
                 if key == "nom":
                     nom = ViewCollaborateur.entrer_nom_collaborateur()
                     collaborateur.nom = nom
-                
+
                 if key == "prenom":
                     prenom = ViewCollaborateur.entrer_prenom_collaborateur()
                     collaborateur.prenom = prenom
@@ -258,7 +249,7 @@ class Controller:
                 if key == "telephone":
                     telephone = ViewCollaborateur.entrer_telephone_collaborateur()
                     collaborateur.telephone = telephone
-                    
+
                 if key == "mot_de_passe":
                     mot_de_passe = ViewCollaborateur.entrer_mot_de_passe_collaborateur()
                     collaborateur.mot_de_passe = mot_de_passe
@@ -266,26 +257,25 @@ class Controller:
 
                 if key == "role":
                     roles = Role.lister_roles()
-                    roles_as_list_of_dict = [{role.id:role.role_name} for role in roles]
+                    roles_as_list_of_dict = [{role.id: role.role_name} for role in roles]
                     role_id = ViewCollaborateur.choisir_role_collaborateur(roles_as_list_of_dict)
                     collaborateur.role_id = role_id
 
-
+        sentry_sdk.capture_message(f"Modification de l'utilisateur {collaborateur.nom} {collaborateur.prenom}")
         valider_session(collaborateur)
 
-
     @staticmethod
-    def modifier_contrat(contrat:Contrat) -> None:
+    def modifier_contrat(contrat: Contrat) -> None:
         """Modifie les informations d'un contrat"""
 
         attribut_dict = {
-            "montant_total":contrat.montant_total,
-            "reste_a_payer":contrat.reste_a_payer,
-            "statut_signe":contrat.statut_signe
+            "montant_total": contrat.montant_total,
+            "reste_a_payer": contrat.reste_a_payer,
+            "statut_signe": contrat.statut_signe
             }
 
         for key, value in attribut_dict.items():
-            if ViewContrat.modifier_caracteristique(key,value):
+            if ViewContrat.modifier_caracteristique(key, value):
                 if key == "montant_total":
                     montant_total = ViewContrat.entrer_montant_total()
                     contrat.montant_total = montant_total
@@ -297,29 +287,29 @@ class Controller:
                 if key == "statut_signe":
                     statut_signe = ViewContrat.choisir_statut()
                     contrat.statut_signe = statut_signe
-    
+                    sentry_sdk.capture_message(f"Signature de contrat {contrat.id}")
+
         valider_session(contrat)
 
-
     @staticmethod
-    def modifier_client(client:Client) -> None:
+    def modifier_client(client: Client) -> None:
         """Modifie les informations d'un client"""
 
         attribut_dict = {
-            "nom":client.nom,
-            "prenom":client.prenom,
-            "email":client.email,
-            "telephone":client.telephone,
-            "entreprise":client.entreprise
+            "nom": client.nom,
+            "prenom": client.prenom,
+            "email": client.email,
+            "telephone": client.telephone,
+            "entreprise": client.entreprise
             }
-        
+
         for key, value in attribut_dict.items():
-            if ViewClient.modifier_caracteristique(key,value):
+            if ViewClient.modifier_caracteristique(key, value):
                 if key == "nom":
                     nom = ViewClient.entrer_nom_client()
                     client.nom = nom
                     client.date_update = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-                
+
                 if key == "prenom":
                     prenom = ViewClient.entrer_prenom_client()
                     client.prenom = prenom
@@ -340,44 +330,27 @@ class Controller:
                     client.entreprise = entreprise
                     client.date_update = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
-                # if key == "collaborateur_id":
-                #     # Choisir parmis les commerciaux
-                #     roles = Role.lister_roles_par_nom("commercial")
-                #     role = roles[0]
-                #     role_id = role.id
-
-                #     commercials = Collaborateur.selectionner_collaborateurs_par_role_id(role_id)
-                #     commercial_as_list_of_dict = Collaborateur.collaborateurs_as_list_of_dict(commercials)
-                #     commercial_id = ViewClient.choisir_collaborateur_id(commercial_as_list_of_dict)
-                #     collaborateur_id = commercial_id
-
-                #     client.collaborateur_id = collaborateur_id
-                #     client.date_update = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-
         valider_session(client)
 
-
     @staticmethod
-    def modifier_evenement_gestion(evenement:Evenement) -> None:
+    def modifier_evenement_gestion(evenement: Evenement) -> None:
         """Modifie les informations d'un evenement"""
 
         attribut_dict = {
-            "date_debut":evenement.date_debut,
-            "date_fin":evenement.date_fin,
-            "location_pays":evenement.location_pays,
-            "location_ville":evenement.location_ville,
-            "location_rue":evenement.location_rue,
-            "location_num_rue":evenement.location_num_rue,
-            "location_cp":evenement.location_cp,
-            "attendees":evenement.attendees,
-            "notes":evenement.notes,
-            "collaborateur_id":evenement.collaborateur_id,
+            "date_debut": evenement.date_debut,
+            "date_fin": evenement.date_fin,
+            "location_pays": evenement.location_pays,
+            "location_ville": evenement.location_ville,
+            "location_rue": evenement.location_rue,
+            "location_num_rue": evenement.location_num_rue,
+            "location_cp": evenement.location_cp,
+            "attendees": evenement.attendees,
+            "notes": evenement.notes,
+            "collaborateur_id": evenement.collaborateur_id,
             }
-        
 
-        
         for key, value in attribut_dict.items():
-            if ViewEvenement.modifier_caracteristique(key,value):
+            if ViewEvenement.modifier_caracteristique(key, value):
                 if key == "date_debut":
                     date_debut = ViewEvenement.entrer_date_debut_evenement()
                     evenement.date_debut = date_debut
@@ -415,7 +388,7 @@ class Controller:
                     evenement.notes = notes
 
                 if key == "collaborateur_id":
-                # Choisir parmis les supports
+                    # Choisir parmis les supports
                     roles = Role.lister_roles_par_nom("support")
                     role = roles[0]
                     role_id = role.id
@@ -427,30 +400,26 @@ class Controller:
 
                     evenement.collaborateur_id = collaborateur_id
 
-
         valider_session(evenement)
 
-
     @staticmethod
-    def modifier_evenement_support(evenement:Evenement) -> None:
+    def modifier_evenement_support(evenement: Evenement) -> None:
         """Modifie les informations d'un evenement"""
 
         attribut_dict = {
-            "date_debut":evenement.date_debut,
-            "date_fin":evenement.date_fin,
-            "location_pays":evenement.location_pays,
-            "location_ville":evenement.location_ville,
-            "location_rue":evenement.location_rue,
-            "location_num_rue":evenement.location_num_rue,
-            "location_cp":evenement.location_cp,
-            "attendees":evenement.attendees,
-            "notes":evenement.notes,
+            "date_debut": evenement.date_debut,
+            "date_fin": evenement.date_fin,
+            "location_pays": evenement.location_pays,
+            "location_ville": evenement.location_ville,
+            "location_rue": evenement.location_rue,
+            "location_num_rue": evenement.location_num_rue,
+            "location_cp": evenement.location_cp,
+            "attendees": evenement.attendees,
+            "notes": evenement.notes,
             }
-        
 
-        
         for key, value in attribut_dict.items():
-            if ViewEvenement.modifier_caracteristique(key,value):
+            if ViewEvenement.modifier_caracteristique(key, value):
                 if key == "date_debut":
                     date_debut = ViewEvenement.entrer_date_debut_evenement()
                     evenement.date_debut = date_debut
@@ -487,20 +456,17 @@ class Controller:
                     notes = ViewEvenement.entrer_notes_evenement()
                     evenement.notes = notes
 
-
         valider_session(evenement)
 
-
-
     @staticmethod
-    def supprimer_obj(obj:Union[Collaborateur, Client, Contrat, Evenement]) -> None:
+    def supprimer_obj(obj: Union[Collaborateur, Client, Contrat, Evenement]) -> None:
         """Supprime un objet"""
         valider_sessions_supprimer_objet(obj)
-
 
     @staticmethod
     def run() -> None:
         """Fonction qui lance l'application"""
+        # from dao.base import supprimer_database_tables
         # supprimer_database_tables()
         # on initalise la base des donnees pour le premiere lancement de l'application
         creer_database_tables()
@@ -516,15 +482,13 @@ class Controller:
         if not collaborateur_existe_dans_db:
             ViewCollaborateur.initialisation_collaborateur()
             Controller.enregistrer_collaborateur(collaborateur_existe_dans_db)
-            while collaborateur == None:
+            while collaborateur is None:
                 ViewCollaborateur.demander_authentification()
                 collaborateur = Controller.authentication_user()
         else:
-            while collaborateur == None:
+            while collaborateur is None:
                 ViewCollaborateur.demander_authentification()
                 collaborateur = Controller.authentication_user()
-
-
 
         collaborateur_role_list = Role.lister_roles_par_id(collaborateur.role_id)
         collaborateur_role = collaborateur_role_list[0].role_name
@@ -532,15 +496,26 @@ class Controller:
 
         token = collaborateur.generer_token()
 
+        sentry_sdk.set_user(
+            {
+                "id": collaborateur.id,
+                "prenom": collaborateur.prenom,
+                "nom": collaborateur.nom,
+                "role": collaborateur_role,
+                "email": collaborateur.email
+            }
+            )
+
+        sentry_sdk.capture_message("Login de l'utilisateur")
         while True:
             ViewMenu.clear()
             choix_menu_principal = ViewMenu.afficher_menu_principal()
-            
+
             if choix_menu_principal == "COLLABORATEURS":
                 ViewMenu.clear()
                 while True:
                     choix_menu_collaborateurs = ViewMenu.afficher_menu_model("collaborateur")
-                    
+
                     if choix_menu_collaborateurs == "AFFICHER":
                         ViewMenu.clear()
                         if Controller.check_authorization_permission(token, collaborateur_role, "lecture_collaborateurs"):
@@ -551,7 +526,6 @@ class Controller:
                                     ViewMenu.clear()
                                     break
 
-
                     if choix_menu_collaborateurs == "AJOUTER":
                         ViewMenu.clear()
                         if Controller.check_authorization_permission(token, collaborateur_role, "creer_collaborateur"):
@@ -561,7 +535,6 @@ class Controller:
                                 if ViewCollaborateur.redemander_ajouter_collaborateur() is False:
                                     ViewMenu.clear()
                                     break
-
 
                     if choix_menu_collaborateurs == "MODIFIER":
                         ViewMenu.clear()
@@ -574,8 +547,6 @@ class Controller:
                                 if ViewCollaborateur.demander_de_modifier_un_autre_collaborateur() is False:
                                     ViewMenu.clear()
                                     break
-                                    
-
 
                     if choix_menu_collaborateurs == "SUPPRIMER":
                         ViewMenu.clear()
@@ -599,12 +570,11 @@ class Controller:
                     if choix_menu_collaborateurs == "QUITTER":
                         exit()
 
-
             if choix_menu_principal == "CLIENTS":
                 ViewMenu.clear()
                 while True:
                     choix_menu_clients = ViewMenu.afficher_menu_model("client")
-                    
+
                     if choix_menu_clients == "AFFICHER":
                         ViewMenu.clear()
                         if Controller.check_authorization_permission(token, collaborateur_role, "lecture_clients"):
@@ -614,7 +584,7 @@ class Controller:
                                 if ViewMenu.revenir_a_ecran_precedent() is True:
                                     ViewMenu.clear()
                                     break
-            
+
                     if choix_menu_clients == "AJOUTER":
                         ViewMenu.clear()
                         if Controller.check_authorization_permission(token, collaborateur_role, "creer_client"):
@@ -635,14 +605,13 @@ class Controller:
                                 if Controller.check_exclusive_permission(
                                     id_fkey=client.collaborateur_id,
                                     id=collaborateur_id
-                                    ) is False:
+                                ) is False:
                                     break
-                                
+
                                 Controller.modifier_client(client)
                                 if ViewClient.demander_de_modifier_un_autre_client() is False:
                                     ViewMenu.clear()
                                     break
-
 
                     if choix_menu_clients == "SUPPRIMER":
                         ViewMenu.clear()
@@ -655,7 +624,7 @@ class Controller:
                                 if Controller.check_exclusive_permission(
                                     id_fkey=client.collaborateur_id,
                                     id=collaborateur_id
-                                    ) is False:
+                                ) is False:
                                     break
 
                                 if ViewClient.demander_de_confirmer_suppression_client(client) is False:
@@ -666,7 +635,6 @@ class Controller:
                                     ViewMenu.clear()
                                     break
 
-                    
                     if choix_menu_clients == "REVENIR":
                         ViewMenu.clear()
                         break
@@ -674,29 +642,27 @@ class Controller:
                     if choix_menu_clients == "QUITTER":
                         exit()
 
-
             if choix_menu_principal == "CONTRATS":
                 ViewMenu.clear()
                 while True:
                     choix_menu_contrat = ViewMenu.afficher_menu_model("contrat")
-                    
+
                     if choix_menu_contrat == "AFFICHER":
                         ViewMenu.clear()
                         if Controller.check_authorization_permission(token, collaborateur_role, "lecture_contrats"):
                             while True:
                                 if collaborateur_role == "commercial":
-                                   
+
                                     choix_filtre_contrat = ViewMenu.afficher_menu_filtre_contrat()
-                                    
+
                                     if choix_filtre_contrat == "TOUS":
                                         while True:
                                             contrats = Contrat.lister_contrats_join_collaborateur_join_client()
-
                                             ViewContrat.afficher_contrats(contrats)
                                             if ViewMenu.revenir_a_ecran_precedent() is True:
                                                 ViewMenu.clear()
                                                 break
-                                    
+
                                     if choix_filtre_contrat == "SIGNE":
                                         while True:
                                             contrats = Contrat.lister_contrats_join_collaborateur_join_client_signature(True)
@@ -714,7 +680,7 @@ class Controller:
                                             if ViewMenu.revenir_a_ecran_precedent() is True:
                                                 ViewMenu.clear()
                                                 break
-                                    
+
                                     if choix_filtre_contrat == "PAYE":
                                         while True:
                                             contrats = Contrat.lister_contrats_join_collaborateur_join_client_paye()
@@ -743,7 +709,6 @@ class Controller:
                                                 ViewMenu.clear()
                                                 break
 
-
                                     if choix_filtre_contrat == "REVENIR":
                                         ViewMenu.clear()
                                         break
@@ -759,7 +724,6 @@ class Controller:
                                         ViewMenu.clear()
                                         break
 
-                    
                     if choix_menu_contrat == "AJOUTER":
                         ViewMenu.clear()
                         if Controller.check_authorization_permission(token, collaborateur_role, "creer_contrat"):
@@ -784,14 +748,14 @@ class Controller:
                                     if Controller.check_exclusive_permission(
                                         id_fkey=contrat.collaborateur_id,
                                         id=collaborateur_id
-                                        ) is False:
+                                    ) is False:
                                         break
 
                                 Controller.modifier_contrat(contrat)
                                 if ViewContrat.redemander_modifier_un_autre_contrat() is False:
                                     ViewMenu.clear()
                                     break
-                
+
                     if choix_menu_contrat == "SUPPRIMER":
                         ViewMenu.clear()
                         if Controller.check_authorization_permission(token, collaborateur_role, "supprimer_contrat"):
@@ -811,7 +775,6 @@ class Controller:
                                     ViewMenu.clear()
                                     break
 
-
                     if choix_menu_contrat == "REVENIR":
                         ViewMenu.clear()
                         break
@@ -819,19 +782,18 @@ class Controller:
                     if choix_menu_contrat == "QUITTER":
                         exit()
 
-
             if choix_menu_principal == "EVENEMENTS":
                 ViewMenu.clear()
                 while True:
                     choix_menu_evenement = ViewMenu.afficher_menu_model("evenement")
-                    
+
                     if choix_menu_evenement == "AFFICHER":
                         ViewMenu.clear()
                         if Controller.check_authorization_permission(token, collaborateur_role, "lecture_evenements"):
                             while True:
                                 if collaborateur_role == "support":
                                     choix_filtre_evenement = ViewMenu.afficher_menu_filtre_evenement_support()
-                                    
+
                                     if choix_filtre_evenement == "TOUS":
                                         while True:
                                             evenements = Evenement.lister_evenements_join_contrat_collaborateurs_client()
@@ -840,7 +802,7 @@ class Controller:
                                             if ViewMenu.revenir_a_ecran_precedent() is True:
                                                 ViewMenu.clear()
                                                 break
-                                    
+
                                     if choix_filtre_evenement == "MES_EVENEMENTS":
                                         while True:
                                             evenements = Evenement.lister_evenements_par_collaborateur(collaborateur_id)
@@ -859,7 +821,7 @@ class Controller:
 
                                 elif collaborateur_role == "gestion":
                                     choix_filtre_evenement = ViewMenu.afficher_menu_filtre_evenement_gestion()
-                                    
+
                                     if choix_filtre_evenement == "TOUS":
                                         while True:
                                             evenements = Evenement.lister_evenements_join_contrat_collaborateurs_client()
@@ -907,13 +869,12 @@ class Controller:
                                     if Controller.check_exclusive_permission(
                                         id_fkey=contrat.collaborateur_id,
                                         id=collaborateur_id
-                                        ) is False:
+                                    ) is False:
                                         break
 
                                 if contrat.statut_signe is False:
                                     ViewContrat.contrat_avec_id_nest_pas_signe()
                                     break
-
 
                                 Controller.enregistrer_evenement(contrat)
                                 if ViewEvenement.redemander_ajouter_evenement() is False:
@@ -936,15 +897,15 @@ class Controller:
                                     if Controller.check_exclusive_permission(
                                         id_fkey=evenement.collaborateur_id,
                                         id=collaborateur_id
-                                        ) is False:
+                                    ) is False:
                                         break
-                                
+
                                 if collaborateur_role == "gestion":
                                     Controller.modifier_evenement_gestion(evenement)
 
                                 if collaborateur_role == "support":
                                     Controller.modifier_evenement_support(evenement)
-                                
+
                                 if ViewEvenement.redemander_modifier_un_autre_evenement() is False:
                                     ViewMenu.clear()
                                     break

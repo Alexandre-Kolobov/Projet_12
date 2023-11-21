@@ -17,6 +17,7 @@ engine = create_engine(f'postgresql+psycopg2://{user}:{password}@{host}/{db_name
 
 Session = sessionmaker(bind=engine)
 
+
 class Base(DeclarativeBase):
     pass
 
@@ -41,9 +42,11 @@ def add_session(session, obj):
     """Permet d'ajouter un objet dans la session en cours"""
     session.add(obj)
 
+
 def delete_session(session, obj):
     """Permet de supprimer un objet de la session en cours"""
     session.delete(obj)
+
 
 def commit_session(session):
     """Permet commit une sessions"""
@@ -54,12 +57,14 @@ def close_session(session):
     """Permet fermer une sessions"""
     session.close()
 
+
 def valider_sessions_supprimer_objet(obj):
     """Regroupe actions d'ouverture, suppression, commit et close"""
     session = ouvrir_session()
     delete_session(session, obj)
     commit_session(session)
     close_session(session)
+
 
 def valider_session(obj):
     """Regroupe actions d'ouverture, add, commit et close"""

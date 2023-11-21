@@ -1,6 +1,6 @@
 from controller.controller import Controller
-from io import StringIO
 import pytest
+
 
 def test_function_run_as_gestionnaire(mocker, capsys):
     mocker.patch('builtins.input', side_effect=[
@@ -23,7 +23,7 @@ def test_function_run_as_gestionnaire(mocker, capsys):
         ]
         )
     mocker.patch('getpass.getpass',  return_value="667745")
-    
+
     with pytest.raises(SystemExit):
         Controller.run()
 
@@ -67,6 +67,3 @@ def test_function_run_as_gestionnaire(mocker, capsys):
     assert "2 - Afficher les événements sans support" in ocaptured_output.out
     assert "3 - Revenir dans le menu principal" in ocaptured_output.out
     assert "4 - Quitter" in ocaptured_output.out
-
-
-

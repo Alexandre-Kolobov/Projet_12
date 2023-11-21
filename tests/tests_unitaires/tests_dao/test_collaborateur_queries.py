@@ -8,7 +8,7 @@ from sqlalchemy.orm import joinedload
 def mocks(mocker, db_session, pass_function):
     mock_ouvrir_session = mocker.patch('dao.collaborateur_queries.ouvrir_session', return_value=db_session)
     mock_close_session = mocker.patch("dao.collaborateur_queries.close_session", return_value=pass_function)
-    
+
     return mock_ouvrir_session, mock_close_session
 
 

@@ -2,7 +2,7 @@ import datetime
 from os import system, name
 from rich.console import Console
 from rich.table import Table
-from rich.prompt import Confirm, Prompt
+from rich.prompt import Confirm
 
 
 class ViewEvenement():
@@ -11,43 +11,42 @@ class ViewEvenement():
         # for windows
         if name == 'nt':
             _ = system('cls')
-    
+
         # for mac and linux(here, os.name is 'posix')
         else:
             _ = system('clear')
 
     @staticmethod
     def entrer_date_debut_evenement() -> datetime.date:
-            while True:
-                print("----------------------------------------")
-                try:
-                    date = input("Entrer la date de debut de l'evenement DD/MM/YYYY hh:mm:ss : ").strip()
-                    date_format = "%d/%m/%Y %H:%M:%S"
-                    if not datetime.datetime.strptime(date, date_format):
-                        raise ValueError("la date doit être au format DD/MM/YYYY hh:mm:ss")
-                    break
+        while True:
+            print("----------------------------------------")
+            try:
+                date = input("Entrer la date de debut de l'evenement DD/MM/YYYY hh:mm:ss : ").strip()
+                date_format = "%d/%m/%Y %H:%M:%S"
+                if not datetime.datetime.strptime(date, date_format):
+                    raise ValueError("la date doit être au format DD/MM/YYYY hh:mm:ss")
+                break
 
-                except ValueError as exc:
-                    print("Erreur: " + str(exc))
+            except ValueError as exc:
+                print("Erreur: " + str(exc))
 
-            return date
+        return date
 
     @staticmethod
     def entrer_date_fin_evenement() -> datetime.date:
-            while True:
-                print("----------------------------------------")
-                try:
-                    date = input("Entrer la date de fin de l'evenement DD/MM/YYYY hh:mm:ss : ").strip()
-                    date_format = "%d/%m/%Y %H:%M:%S"
-                    if not datetime.datetime.strptime(date, date_format):
-                        raise ValueError("la date doit être au format DD/MM/YYYY hh:mm:ss")
-                    break
+        while True:
+            print("----------------------------------------")
+            try:
+                date = input("Entrer la date de fin de l'evenement DD/MM/YYYY hh:mm:ss : ").strip()
+                date_format = "%d/%m/%Y %H:%M:%S"
+                if not datetime.datetime.strptime(date, date_format):
+                    raise ValueError("la date doit être au format DD/MM/YYYY hh:mm:ss")
+                break
 
-                except ValueError as exc:
-                    print("Erreur: " + str(exc))
+            except ValueError as exc:
+                print("Erreur: " + str(exc))
 
-            return date
-
+        return date
 
     @staticmethod
     def entrer_pays_evenement() -> str:
@@ -58,11 +57,11 @@ class ViewEvenement():
                 if not pays.isalpha() or pays == "":
                     raise ValueError("Le pays de l'evenement doit contenir que des lettres et ne pas être vide")
                 break
+
             except ValueError as exc:
                 print("Erreur: " + str(exc))
 
         return pays
-
 
     @staticmethod
     def entrer_ville_evenement() -> str:
@@ -73,11 +72,11 @@ class ViewEvenement():
                 if not ville.isalpha() or ville == "":
                     raise ValueError("La ville de l'evenement doit contenir que des lettres et ne pas être vide")
                 break
+
             except ValueError as exc:
                 print("Erreur: " + str(exc))
 
         return ville
-
 
     @staticmethod
     def entrer_rue_evenement() -> str:
@@ -88,11 +87,11 @@ class ViewEvenement():
                 if not rue.isalpha() or rue == "":
                     raise ValueError("La rue de l'evenement doit contenir que des lettres et ne pas être vide")
                 break
+
             except ValueError as exc:
                 print("Erreur: " + str(exc))
 
         return rue
-    
 
     @staticmethod
     def entrer_numero_rue_evenement() -> int:
@@ -103,11 +102,12 @@ class ViewEvenement():
                 if not numero_rue.isnumeric() or numero_rue == "":
                     raise ValueError("Le numero de rue doit contenir que des chiffres et ne pas être vide")
                 break
+
             except ValueError as exc:
                 print("Erreur: " + str(exc))
 
         return numero_rue
-    
+
     @staticmethod
     def entrer_cp_evenement() -> int:
         while True:
@@ -117,11 +117,11 @@ class ViewEvenement():
                 if not cp.isnumeric() or cp == "":
                     raise ValueError("Le code postal doit contenir que des chiffres et ne pas être vide")
                 break
+
             except ValueError as exc:
                 print("Erreur: " + str(exc))
 
         return cp
-
 
     @staticmethod
     def entrer_attendees_evenement() -> int:
@@ -132,18 +132,17 @@ class ViewEvenement():
                 if not cp.isnumeric() or cp == "":
                     raise ValueError("Le nombre d'attendees doit contenir que des chiffres et ne pas être vide")
                 break
+
             except ValueError as exc:
                 print("Erreur: " + str(exc))
 
         return cp
-
 
     @staticmethod
     def entrer_notes_evenement() -> str:
         print("----------------------------------------")
         note = input("Entrer une note pour l'evenement: ")
         return note
-
 
     @staticmethod
     def entrer_contrat_id_evenement() -> int:
@@ -154,14 +153,14 @@ class ViewEvenement():
                 if not id_contrat.isnumeric() or id_contrat == "":
                     raise ValueError("L'id du contrat doit contenir que des chiffres et ne pas être vide")
                 break
+
             except ValueError as exc:
                 print("Erreur: " + str(exc))
 
         return id_contrat
 
-
     @staticmethod
-    def choisir_collaborateur_id(collaborateur_as_list_of_dict:list[dict]) -> int:
+    def choisir_collaborateur_id(collaborateur_as_list_of_dict: list[dict]) -> int:
         while True:
             print("----------------------------------------")
             print("Choissisez le support à assigner pour cet événement:")
@@ -172,17 +171,17 @@ class ViewEvenement():
                 for key, value in collaborateur.items():
                     keys[i] = key
                     print(f"{i} - {value}")
-                    i += 1 
-            
+                    i += 1
+
             try:
                 choix_collaborateur = input("Entrez le numéro du support: ").strip()
-                
+
                 if not choix_collaborateur.isnumeric() or choix_collaborateur == "":
                     raise ValueError("Merci de choisir parmis les supports proposés")
-                
+
                 if not int(choix_collaborateur) in range(1, i):
                     raise ValueError("Merci de choisir parmis les supports proposés")
-                
+
                 choix_collaborateur = keys[int(choix_collaborateur)]
                 break
 
@@ -191,19 +190,17 @@ class ViewEvenement():
 
         return choix_collaborateur
 
-
     @staticmethod
-    def modifier_caracteristique(key:str, value:[str,int]) -> bool:
+    def modifier_caracteristique(key: str, value: [str, int]) -> bool:
         while True:
             reponse = input(f"Voulez vous modifier {key}:{value}? [y/n]")
             if reponse.lower() == "y":
                 return True
-            
+
             if reponse.lower() == "n":
                 return False
-            
-            print("Merci d'utiliser y or n")
 
+            print("Merci d'utiliser y or n")
 
     @staticmethod
     def afficher_evenements(list_evenements: list):
@@ -216,9 +213,9 @@ class ViewEvenement():
         table.add_column("Pays", style="magenta")
         table.add_column("Ville", style="magenta")
         table.add_column("Rue", style="magenta")
-        table.add_column("N° Rue",justify="right", style="magenta")
-        table.add_column("CP",justify="right", style="magenta")
-        table.add_column("Attendees",justify="right", style="magenta")
+        table.add_column("N° Rue", justify="right", style="magenta")
+        table.add_column("CP", justify="right", style="magenta")
+        table.add_column("Attendees", justify="right", style="magenta")
         table.add_column("Notes", style="magenta")
         table.add_column("Contrat id", justify="right", style="magenta")
         table.add_column("Client", style="yellow")
@@ -240,11 +237,12 @@ class ViewEvenement():
                 str(evenement.notes),
                 str(evenement.contrat_id),
                 f"{evenement.contrat.client.nom} {evenement.contrat.client.prenom}",
-                f"{evenement.contrat.collaborateur.nom} {evenement.contrat.collaborateur.prenom}" if evenement.contrat.collaborateur else "",
+                f"{evenement.contrat.collaborateur.nom} \
+                {evenement.contrat.collaborateur.prenom}"
+                if evenement.contrat.collaborateur else "",
                 str(evenement.collaborateur_id),
                 f"{evenement.collaborateur.nom} {evenement.collaborateur.prenom}" if evenement.collaborateur else ""
-                )
-
+            )
 
         console = Console()
         console.print(table)
@@ -254,8 +252,7 @@ class ViewEvenement():
         print("----------------------------------------")
         reponse = Confirm.ask("Voulez-vous ajouter un autre evenement?")
         return reponse
-    
-    
+
     @staticmethod
     def demander_id_de_evenement_a_modifier() -> str:
         """Renvoi l'id de l'evenement à modifier"""
@@ -266,24 +263,22 @@ class ViewEvenement():
                 if not id_evenement.isnumeric() or id_evenement == "":
                     raise ValueError("L'id de l'événement doit être numerique et ne pas être vide")
                 break
+
             except ValueError as exc:
                 print("Erreur: " + str(exc))
 
         return id_evenement
-    
-    
+
     @staticmethod
-    def evenement_avec_id_nexiste_pas(id:str) -> None:
+    def evenement_avec_id_nexiste_pas(id: str) -> None:
         print("----------------------------------------")
         print(f"Evenement avec id {id} n'existe pas")
-
 
     @staticmethod
     def redemander_modifier_un_autre_evenement() -> None:
         print("----------------------------------------")
         reponse = Confirm.ask("Voulez-vous modifier un autre evenement?")
         return reponse
-    
 
     @staticmethod
     def demander_id_evenement_a_supprimer() -> str:
@@ -294,11 +289,11 @@ class ViewEvenement():
                 if not id_evenement.isnumeric() or id_evenement == "":
                     raise ValueError("L'id de l'événement doit être numerique et ne pas être vide")
                 break
+
             except ValueError as exc:
                 print("Erreur: " + str(exc))
 
         return id_evenement
-    
 
     @staticmethod
     def demander_de_confirmer_suppression_evenement(evenement) -> None:
@@ -306,5 +301,6 @@ class ViewEvenement():
         reponse = Confirm.ask(
             "Confirmer la suppression de l'évenement - "
             f"id{evenement.id}"
-            )
+        )
+
         return reponse

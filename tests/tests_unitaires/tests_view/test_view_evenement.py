@@ -1,5 +1,6 @@
 from views.view_evenement import ViewEvenement
 
+
 def test_enter_valide_start_date(mocker):
     """Verififcation que date de debut de l'événement est correcte"""
     mocker.patch('builtins.input', return_value="10/10/2010 10:00:00")
@@ -159,12 +160,14 @@ def test_enter_notes(mocker):
 
     assert sut == "Test"
 
+
 def test_should_return_id_evenement(mocker, capsys):
     """Demander id du contrat à utilisateur"""
     mocker.patch('builtins.input', return_value="1")
     sut = ViewEvenement.demander_id_de_evenement_a_modifier()
 
     assert sut == "1"
+
 
 def test_should_print_that_evenement_doesnt_exists_with_this_id(capsys):
     """Doit dire à l'utilisateur que cet événement n'existe pas"""
@@ -186,15 +189,15 @@ def test_should_return_collaborateur_id(mocker, collaborateur_support):
     mocker.patch('builtins.input', return_value="1")
     sut = ViewEvenement.choisir_collaborateur_id(list_of_dict)
 
-    assert sut == None
+    assert sut is None
 
 
 def test_should_return_error_when_chose_collaborateur_id(mocker, collaborateur_support, capsys):
     """Verifie fonctionnment ViewContrat.choisir_client_id si l'utilisateur choisi un client de la liste"""
-    collaborateur_dict = {collaborateur_support.id:f"{collaborateur_support.nom} {collaborateur_support.prenom}"}
+    collaborateur_dict = {collaborateur_support.id: f"{collaborateur_support.nom} {collaborateur_support.prenom}"}
     list_of_dict = [collaborateur_dict]
 
-    mocker.patch('builtins.input', side_effect=["2","1"])
+    mocker.patch('builtins.input', side_effect=["2", "1"])
     ViewEvenement.choisir_collaborateur_id(list_of_dict)
     captured = capsys.readouterr()
     sut = captured.out

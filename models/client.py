@@ -23,27 +23,23 @@ class Client(Base):
     collaborateur = relationship("Collaborateur", back_populates="clients")
     contrats = relationship("Contrat", back_populates="client", cascade="all, delete, delete-orphan")
 
-
     @staticmethod
     def lister_clients() -> List["Client"]:
         """Renvoi la liste des clients"""
-        return(ClientQueries.lister_clients_dao(Client))
+        return (ClientQueries.lister_clients_dao(Client))
 
-    
     @staticmethod
-    def clients_as_list_of_dict(clients:list["Client"]) -> List[dict]:
+    def clients_as_list_of_dict(clients: list["Client"]) -> List[dict]:
         """Renvoi les info des clients sous form de list des dictionnaires"""
-        clients_as_list_of_dict = [{client.id:f"{client.nom} {client.prenom} - {client.entreprise}"} for client in clients]
+        clients_as_list_of_dict = [{client.id: f"{client.nom} {client.prenom} - {client.entreprise}"} for client in clients]
         return (clients_as_list_of_dict)
-    
 
     @staticmethod
     def lister_clients_join_collaborateur() -> List["Client"]:
         """Renvoi la liste de tous les client avec leur collaborateur associé"""
-        return(ClientQueries.lister_clients_join_collaborateur_dao(Client))
-    
+        return (ClientQueries.lister_clients_join_collaborateur_dao(Client))
 
     @staticmethod
     def selectionner_client_par_id(id) -> List["Client"]:
         """Renvoi la liste des client en fonction de leur id"""
-        return(ClientQueries.selectionner_client_par_id_dao(Client, id))
+        return (ClientQueries.selectionner_client_par_id_dao(Client, id))

@@ -9,7 +9,7 @@ from sqlalchemy.orm import joinedload
 def mocks(mocker, db_session, pass_function):
     mock_ouvrir_session = mocker.patch('dao.evenement_queries.ouvrir_session', return_value=db_session)
     mock_close_session = mocker.patch("dao.evenement_queries.close_session", return_value=pass_function)
-    
+
     return mock_ouvrir_session, mock_close_session
 
 
@@ -26,7 +26,6 @@ def test_should_return_all_evenements_with_collaborateur_contrat_client(db_sessi
                 joinedload(Evenement.collaborateur))
             .order_by(Evenement.id).all()
             )
-    
 
     assert mock_ouvrir_session.call_count == 1
     assert mock_close_session.call_count == 1
@@ -45,10 +44,9 @@ def test_should_return_all_evenements_with_collaborateur_contrat_client_filtered
             joinedload(Evenement.contrat).joinedload(Contrat.client),
             joinedload(Evenement.contrat).joinedload(Contrat.collaborateur),
             joinedload(Evenement.collaborateur))
-        .filter(Evenement.collaborateur_id=="1")
+        .filter(Evenement.collaborateur_id == "1")
         .order_by(Evenement.id).all()
         )
-    
 
     assert mock_ouvrir_session.call_count == 1
     assert mock_close_session.call_count == 1
