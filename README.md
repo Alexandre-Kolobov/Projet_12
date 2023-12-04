@@ -65,3 +65,5 @@ Before running app:
     2)For start tests please use "pytest"
 
     3)For check test coverage  "pytest --cov=. --cov-report html" and you can check html rapport in the htmlcov directory
+
+    4)To wipe databse please use "python main.py wipe" command

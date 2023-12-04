@@ -8,12 +8,13 @@ from models.role import Role
 from models.client import Client
 from models.contrat import Contrat
 from models.evenement import Evenement
-from dao.base import creer_database_tables, valider_session, valider_sessions_supprimer_objet
+from dao.base import creer_database_tables, valider_session, valider_sessions_supprimer_objet, supprimer_database_tables
 from typing import Union
 from permissions.permissions_manager import Permissions
 import datetime
 import sentry_sdk
 import configparser
+import sys
 
 
 config_obj = configparser.ConfigParser()
@@ -467,7 +468,10 @@ class Controller:
     def run() -> None:
         """Fonction qui lance l'application"""
         # from dao.base import supprimer_database_tables
-        # supprimer_database_tables()
+        if len(sys.argv) > 1:
+            if sys.argv[1] == "wipe":
+                supprimer_database_tables()
+
         # on initalise la base des donnees pour le premiere lancement de l'application
         creer_database_tables()
 
