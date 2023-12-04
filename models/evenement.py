@@ -48,4 +48,4 @@ class Evenement(Base):
     @staticmethod
     def lister_evenements_sans_collaborateur() -> List["Evenement"]:
         """Renvoi la liste des evenements"""
-        return (EvenementQueries.lister_evenements_sans_collaborateur_dao(Evenement, id))
+        return (EvenementQueries.lister_evenements_sans_collaborateur_dao(Evenement))

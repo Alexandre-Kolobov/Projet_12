@@ -57,7 +57,7 @@ class EvenementQueries:
         return evenements
 
     @staticmethod
-    def lister_evenements_sans_collaborateur_dao(model_class, id):
+    def lister_evenements_sans_collaborateur_dao(model_class):
         """Renvoi la liste des evenements join contrat client et collaborateurs"""
         session = ouvrir_session()
         evenements = (
@@ -66,7 +66,7 @@ class EvenementQueries:
                 joinedload(model_class.contrat).joinedload(Contrat.client),
                 joinedload(model_class.contrat).joinedload(Contrat.collaborateur),
                 joinedload(model_class.collaborateur))
-            .filter(model_class.collaborateur_id is None)
+            .filter(model_class.collaborateur_id == None)
             .order_by(model_class.id).all()
             )
         close_session(session)
